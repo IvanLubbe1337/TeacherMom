@@ -3,9 +3,64 @@
 import { sounds } from './audio.js';
 import { resourceStore, AUTHORIZED_ADMIN_EMAIL } from './resourceStore.js';
 
+// Client-side image compression: converts high-res scans/photos to lightweight WebP/JPEG (max 1200px, 0.85 quality)
+export function compressImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!file || !file.type.startsWith('image/')) {
+      resolve(null);
+      return;
+    }
+    if (file.type === 'image/svg+xml') {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        let dataUrl = canvas.toDataURL('image/webp', quality);
+        if (!dataUrl.startsWith('data:image/webp')) {
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(ev.target.result);
+      img.src = ev.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
 export class AdminController {
   constructor(options = {}) {
     this.onResourceAdded = options.onResourceAdded || (() => {});
+    this.onOpenFlipbook = options.onOpenFlipbook || (() => {});
     this.modalEl = null;
     this.sampleImagesBase64 = [];
 
@@ -313,10 +368,19 @@ export class AdminController {
             </div>
 
             <!-- Upload Sample Images -->
-            <div class="form-field">
-              <label>Upload Sample Preview Images: *</label>
-              <input type="file" id="sampleImagesInput" multiple accept="image/*" />
-              <small class="field-hint">Upload 1 or more sample worksheet pages to display to buyers.</small>
+            <div class="form-field sample-upload-box-card">
+              <label>📸 Upload Sample Preview Images: *</label>
+              <div class="sample-upload-tools-row">
+                <label class="sample-file-upload-btn-wrap">
+                  <span class="bubble-pill-btn btn-peach btn-sm">📁 Choose Image Files</span>
+                  <input type="file" id="sampleImagesInput" multiple accept="image/*" style="display: none;" />
+                </label>
+                <div class="sample-url-input-wrap">
+                  <input type="url" id="sampleImageUrlInput" placeholder="Or paste image URL (https://...)" />
+                  <button type="button" id="addSampleUrlBtn" class="bubble-pill-btn btn-mint btn-sm">+ Add URL</button>
+                </div>
+              </div>
+              <small class="field-hint">Upload or paste 1 or more sample worksheet pages to display to buyers in the Live Flipbook.</small>
               <div class="sample-images-preview-row" id="sampleImagesPreviewContainer"></div>
             </div>
 
@@ -450,28 +514,77 @@ export class AdminController {
       });
     });
 
-    // Sample Images File Reader
+    // Sample Images Management in New Resource Form
     const fileInput = container.querySelector('#sampleImagesInput');
+    const urlInput = container.querySelector('#sampleImageUrlInput');
+    const addUrlBtn = container.querySelector('#addSampleUrlBtn');
     const previewContainer = container.querySelector('#sampleImagesPreviewContainer');
-    fileInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files);
-      this.sampleImagesBase64 = [];
+
+    const renderPreviewCards = () => {
       previewContainer.innerHTML = '';
+      if (this.sampleImagesBase64.length === 0) {
+        previewContainer.innerHTML = '<span class="no-samples-hint">No sample pages attached yet. (Add images above to let buyers preview pages)</span>';
+        return;
+      }
 
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const base64 = ev.target.result;
-          this.sampleImagesBase64.push(base64);
-
-          const thumb = document.createElement('div');
-          thumb.className = 'sample-thumb-item';
-          thumb.innerHTML = `<img src="${base64}" alt="Sample preview" />`;
-          previewContainer.appendChild(thumb);
-        };
-        reader.readAsDataURL(file);
+      this.sampleImagesBase64.forEach((src, idx) => {
+        const item = document.createElement('div');
+        item.className = 'sample-thumb-item';
+        item.innerHTML = `
+          <div class="sample-thumb-inner">
+            <img src="${src}" alt="Sample page ${idx + 1}" />
+            <span class="sample-thumb-badge">Page ${idx + 1}</span>
+            <button type="button" class="sample-remove-thumb-btn" data-index="${idx}" title="Remove this sample page">✕</button>
+          </div>
+        `;
+        previewContainer.appendChild(item);
       });
-    });
+
+      previewContainer.querySelectorAll('.sample-remove-thumb-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const removeIdx = parseInt(e.currentTarget.dataset.index, 10);
+          this.sampleImagesBase64.splice(removeIdx, 1);
+          sounds.pop(350);
+          renderPreviewCards();
+        });
+      });
+    };
+
+    renderPreviewCards();
+
+    if (fileInput) {
+      fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+        sounds.pop(500);
+
+        for (const file of files) {
+          const compressed = await compressImageFile(file);
+          if (compressed) {
+            this.sampleImagesBase64.push(compressed);
+          }
+        }
+        sounds.sparkle();
+        renderPreviewCards();
+        fileInput.value = '';
+      });
+    }
+
+    if (addUrlBtn && urlInput) {
+      addUrlBtn.addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (!url) return;
+        if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:image/')) {
+          alert('Please enter a valid image URL starting with https://');
+          return;
+        }
+        this.sampleImagesBase64.push(url);
+        sounds.pop(600);
+        urlInput.value = '';
+        renderPreviewCards();
+      });
+    }
 
     // Submit New Resource
     const newForm = container.querySelector('#newResourceForm');
@@ -561,8 +674,10 @@ export class AdminController {
     if (!listContainer) return;
     const resources = resourceStore.getResources();
 
-    listContainer.innerHTML = resources.map(res => `
-      <div class="admin-catalog-row">
+    listContainer.innerHTML = resources.map(res => {
+      const sampleCount = res.sampleImages ? res.sampleImages.length : 0;
+      return `
+      <div class="admin-catalog-row" data-id="${res.id}">
         <div class="cat-details">
           <span class="cat-title">${res.title}</span>
           <div class="cat-badges">
@@ -571,13 +686,30 @@ export class AdminController {
             <span class="c-badge sub">${res.subject || 'Subject'}</span>
             <span class="c-badge term">${res.term || 'Term 1'} (${res.year || '2026'})</span>
             <span class="c-badge locked">🔒 Locked</span>
+            <span class="c-badge samples-count-badge ${sampleCount > 0 ? 'has-samples' : 'no-samples'}">
+              🖼️ ${sampleCount} ${sampleCount === 1 ? 'Sample' : 'Samples'}
+            </span>
             <span class="c-badge rating">⭐ ${res.rating} (${res.reviews} ratings)</span>
             <strong class="c-price">${res.currency || 'R'}${parseFloat(res.price).toFixed(2)}</strong>
           </div>
         </div>
-        <button class="delete-res-btn" data-id="${res.id}" title="Remove resource">🗑️ Delete</button>
+        <div class="cat-row-actions">
+          <button class="bubble-pill-btn btn-peach btn-sm manage-samples-btn" data-id="${res.id}" title="Manage sample pages for this resource">
+            🖼️ Samples (${sampleCount})
+          </button>
+          <button class="delete-res-btn" data-id="${res.id}" title="Remove resource">🗑️ Delete</button>
+        </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    listContainer.querySelectorAll('.manage-samples-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        sounds.pop(550);
+        this.openSampleManagerModal(id);
+      });
+    });
 
     listContainer.querySelectorAll('.delete-res-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -588,6 +720,178 @@ export class AdminController {
           this.renderCatalogList(listContainer);
         }
       });
+    });
+  }
+
+  // --- 3. DEDICATED SAMPLE MANAGER MODAL (Add, Delete, Compress & Preview Samples) ---
+  openSampleManagerModal(resourceId) {
+    const res = resourceStore.getResources().find(r => r.id === resourceId);
+    if (!res) return;
+
+    const existingModal = document.getElementById('sampleManagerModal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'sample-manager-modal-backdrop active';
+    modal.id = 'sampleManagerModal';
+
+    const workingSamples = [...(res.sampleImages || [])];
+
+    modal.innerHTML = `
+      <div class="sample-manager-window">
+        <div class="sample-manager-header">
+          <div class="sample-mgr-title-box">
+            <span class="mgr-icon">🖼️</span>
+            <div>
+              <h4>Manage Sample Pages</h4>
+              <p class="mgr-res-title">${res.title}</p>
+            </div>
+          </div>
+          <button class="close-sample-mgr-btn" id="closeSampleMgrBtn" aria-label="Close sample manager">✕</button>
+        </div>
+
+        <div class="sample-manager-body">
+          <div class="sample-mgr-info-banner">
+            <span>ℹ️ These sample pages are displayed in the <strong>Live Flipbook</strong> and card previews so prospective schools and parents can inspect real worksheet quality before buying.</span>
+          </div>
+
+          <!-- Add New Samples Control Bar -->
+          <div class="sample-mgr-add-bar">
+            <h5>+ Add New Sample Pages:</h5>
+            <div class="sample-add-controls-row">
+              <label class="sample-file-upload-btn-wrap">
+                <span class="bubble-pill-btn btn-peach btn-sm">📁 Choose Image Files</span>
+                <input type="file" id="mgrFileInput" multiple accept="image/*" style="display: none;" />
+              </label>
+              <div class="mgr-url-input-wrap">
+                <input type="url" id="mgrUrlInput" placeholder="Or paste sample image URL (https://...)" />
+                <button type="button" id="mgrAddUrlBtn" class="bubble-pill-btn btn-mint btn-sm">+ Add URL</button>
+              </div>
+            </div>
+            <small class="field-hint">Images are automatically optimized and compressed client-side for ultra-fast loading.</small>
+          </div>
+
+          <!-- Current Attached Samples Grid -->
+          <div class="sample-mgr-samples-section">
+            <div class="samples-section-header">
+              <h5>Attached Sample Pages (<span id="mgrSampleCountVal">${workingSamples.length}</span>):</h5>
+            </div>
+            <div class="sample-mgr-grid" id="mgrSamplesGrid"></div>
+          </div>
+        </div>
+
+        <div class="sample-manager-footer">
+          <button type="button" class="bubble-pill-btn btn-yellow" id="mgrTestFlipbookBtn">
+            📖 Test in Live Flipbook
+          </button>
+          <div class="footer-right-actions">
+            <button type="button" class="bubble-pill-btn btn-gray" id="mgrCancelBtn">Cancel</button>
+            <button type="button" class="bubble-pill-btn btn-mint" id="mgrSaveBtn">
+              💾 Save & Apply Samples
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const gridEl = modal.querySelector('#mgrSamplesGrid');
+    const countEl = modal.querySelector('#mgrSampleCountVal');
+
+    const renderGrid = () => {
+      countEl.textContent = workingSamples.length;
+      if (workingSamples.length === 0) {
+        gridEl.innerHTML = `
+          <div class="empty-samples-box">
+            <span>⚠️ No sample pages attached yet. Upload 1 or more images above so buyers can preview this resource!</span>
+          </div>
+        `;
+        return;
+      }
+
+      gridEl.innerHTML = workingSamples.map((src, i) => `
+        <div class="sample-mgr-card">
+          <div class="sample-mgr-preview">
+            <img src="${src}" alt="Sample page ${i + 1}" />
+            <div class="sample-watermark-pill">SAMPLE PAGE ${i + 1}</div>
+          </div>
+          <button type="button" class="mgr-delete-sample-btn" data-index="${i}">
+            🗑️ Remove Page ${i + 1}
+          </button>
+        </div>
+      `).join('');
+
+      gridEl.querySelectorAll('.mgr-delete-sample-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.dataset.index, 10);
+          sounds.pop(350);
+          workingSamples.splice(idx, 1);
+          renderGrid();
+        });
+      });
+    };
+
+    renderGrid();
+
+    // File upload with client-side compression
+    const fileInput = modal.querySelector('#mgrFileInput');
+    fileInput.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      sounds.pop(500);
+
+      for (const file of files) {
+        const compressed = await compressImageFile(file);
+        if (compressed) {
+          workingSamples.push(compressed);
+        }
+      }
+      sounds.sparkle();
+      renderGrid();
+      fileInput.value = '';
+    });
+
+    // URL add
+    const urlInput = modal.querySelector('#mgrUrlInput');
+    const addUrlBtn = modal.querySelector('#mgrAddUrlBtn');
+    addUrlBtn.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:image/')) {
+        alert('Please enter a valid image URL starting with https://');
+        return;
+      }
+      workingSamples.push(url);
+      sounds.pop(600);
+      urlInput.value = '';
+      renderGrid();
+    });
+
+    // Save & apply
+    modal.querySelector('#mgrSaveBtn').addEventListener('click', () => {
+      resourceStore.updateResource(resourceId, { sampleImages: workingSamples });
+      sounds.win();
+      alert(`✅ Samples updated for "${res.title}"! (${workingSamples.length} sample pages attached).`);
+      modal.remove();
+      this.renderCatalogList(this.modalEl.querySelector('#adminCatalogList'));
+    });
+
+    // Test in Flipbook
+    modal.querySelector('#mgrTestFlipbookBtn').addEventListener('click', () => {
+      const updatedRes = { ...res, sampleImages: workingSamples };
+      this.onOpenFlipbook(updatedRes);
+    });
+
+    // Cancel / Close
+    const closeMgr = () => {
+      sounds.pop(400);
+      modal.remove();
+    };
+    modal.querySelector('#closeSampleMgrBtn').addEventListener('click', closeMgr);
+    modal.querySelector('#mgrCancelBtn').addEventListener('click', closeMgr);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeMgr();
     });
   }
 

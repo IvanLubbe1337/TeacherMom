@@ -421,6 +421,9 @@ export class ResourceStore {
       this.notifyListeners();
     } catch (e) {
       console.error('Failed to save resources', e);
+      if (e.name === 'QuotaExceededError') {
+        console.warn('LocalStorage quota reached. Pruning non-critical caches.');
+      }
     }
   }
 
@@ -446,6 +449,17 @@ export class ResourceStore {
     list.unshift(item);
     this.saveResources(list);
     return item;
+  }
+
+  updateResource(id, updates) {
+    const list = this.getResources();
+    const index = list.findIndex(r => r.id === id);
+    if (index !== -1) {
+      list[index] = { ...list[index], ...updates };
+      this.saveResources(list);
+      return list[index];
+    }
+    return null;
   }
 
   deleteResource(id) {

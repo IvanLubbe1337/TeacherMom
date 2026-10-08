@@ -159,7 +159,10 @@ export class FlipbookModal {
   }
 
   nextPage() {
-    if (this.currentPageIndex < 2) {
+    const totalPages = this.currentResource?.sampleImages?.length > 0 
+      ? this.currentResource.sampleImages.length 
+      : 4;
+    if (this.currentPageIndex + 2 < totalPages) {
       sounds.pageTurn();
       this.animateFlip('forward');
       this.currentPageIndex += 2;
@@ -173,7 +176,7 @@ export class FlipbookModal {
     if (this.currentPageIndex > 0) {
       sounds.pageTurn();
       this.animateFlip('backward');
-      this.currentPageIndex -= 2;
+      this.currentPageIndex = Math.max(0, this.currentPageIndex - 2);
       this.renderPages();
     } else {
       sounds.pop(400);
@@ -196,25 +199,40 @@ export class FlipbookModal {
 
     // If resource has uploaded sample images from Admin
     if (this.currentResource.sampleImages && this.currentResource.sampleImages.length > 0) {
-      const img1 = this.currentResource.sampleImages[0];
-      const img2 = this.currentResource.sampleImages[1] || img1;
+      const samples = this.currentResource.sampleImages;
+      const total = samples.length;
+      const img1 = samples[this.currentPageIndex];
+      const img2 = samples[this.currentPageIndex + 1];
 
       leftEl.innerHTML = `
         <div class="worksheet-sheet sample-image-sheet">
           <div class="watermark-tag">SAMPLE PREVIEW • LOCKED</div>
-          <img src="${img1}" alt="Sample page 1" class="fb-sample-img" />
-          <div class="page-footer-num">Sample Page 1</div>
+          <img src="${img1}" alt="Sample page ${this.currentPageIndex + 1}" class="fb-sample-img" />
+          <div class="page-footer-num">Sample Page ${this.currentPageIndex + 1} of ${total}</div>
         </div>
       `;
 
-      rightEl.innerHTML = `
-        <div class="worksheet-sheet sample-image-sheet">
-          <div class="watermark-tag">SAMPLE PREVIEW • LOCKED</div>
-          <img src="${img2}" alt="Sample page 2" class="fb-sample-img" />
-          <div class="page-footer-num">Sample Page 2</div>
-        </div>
-      `;
-      counterEl.textContent = 'Sample Images 1 - 2';
+      if (img2) {
+        rightEl.innerHTML = `
+          <div class="worksheet-sheet sample-image-sheet">
+            <div class="watermark-tag">SAMPLE PREVIEW • LOCKED</div>
+            <img src="${img2}" alt="Sample page ${this.currentPageIndex + 2}" class="fb-sample-img" />
+            <div class="page-footer-num">Sample Page ${this.currentPageIndex + 2} of ${total}</div>
+          </div>
+        `;
+      } else {
+        rightEl.innerHTML = `
+          <div class="worksheet-sheet cover-sheet" style="--cover-tint: ${this.currentResource.colorTheme || '#FFE5EC'}">
+            <div class="cover-doodle-border locked-final-preview">
+              <div class="sheet-grade-tag">🔒 End of Sample Preview</div>
+              <h3 class="cover-big-title">Complete Resource Locked</h3>
+              <p class="cover-sub">Instant full PDF access, memo solutions & lesson plans unlocked upon verified payment.</p>
+              <div class="cover-badge-pill">🇿🇦 DBE ATP Aligned</div>
+            </div>
+          </div>
+        `;
+      }
+      counterEl.textContent = `Sample Pages ${this.currentPageIndex + 1} - ${Math.min(this.currentPageIndex + 2, total)} of ${total}`;
       return;
     }
 

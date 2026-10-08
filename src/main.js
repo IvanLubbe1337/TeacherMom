@@ -162,6 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
   new AdminController({
     onResourceAdded: (newRes) => {
       triggerMascotCheer(`Yay! New resource "${newRes.title}" is published! 🚀`);
+    },
+    onOpenFlipbook: (res) => {
+      flipbook.open(res);
     }
   });
 
