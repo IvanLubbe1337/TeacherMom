@@ -51,7 +51,7 @@ export class InteractiveAnimations {
           '#FFD166', '#FFB703', '#FB8500', '#FFE6A7', '#FFFFFF'
         ], ['★', '✦', '☀️', '✨', '💛'], 20);
 
-        this.showDoodleBubble(sun, 'Yay! Warm sunshine for your classroom! ☀️✨', 'top-left');
+        this.showDoodleBubble(sun, 'Yay! Warm sunshine for your classroom! ☀️✨', 'bottom-left');
 
         setTimeout(() => {
           sun.classList.remove('sun-celebrating');
@@ -75,7 +75,7 @@ export class InteractiveAnimations {
         const rect = cloud.getBoundingClientRect();
         this.spawnRainShower(rect.left + rect.width * 0.1, rect.left + rect.width * 0.9, rect.bottom, 22);
 
-        this.showDoodleBubble(cloud, 'Pitter-patter! Rainbow sprinkle shower! 🌧️🌈', 'top-right');
+        this.showDoodleBubble(cloud, 'Pitter-patter! Rainbow sprinkle shower! 🌧️🌈', 'bottom-right');
 
         setTimeout(() => {
           cloud.classList.remove('cloud-squishing');
