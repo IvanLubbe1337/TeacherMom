@@ -10,7 +10,7 @@ export class ResourceCarousel {
     this.resources = resourceStore.getResources();
     this.filteredResources = [...this.resources];
     this.currentIndex = 0;
-    this.itemsPerPage = 4;
+    this.itemsPerPage = 3;
     this.onAddToCart = options.onAddToCart || (() => {});
     this.onOpenFlipbook = options.onOpenFlipbook || (() => {});
     this.onBuyResource = options.onBuyResource || (() => {});
@@ -31,6 +31,10 @@ export class ResourceCarousel {
     this.checkItemsPerPage();
     window.addEventListener('resize', () => {
       this.checkItemsPerPage();
+      const maxIndex = Math.max(0, this.filteredResources.length - this.itemsPerPage);
+      if (this.currentIndex > maxIndex) {
+        this.currentIndex = maxIndex;
+      }
       this.render();
     });
 
@@ -38,14 +42,12 @@ export class ResourceCarousel {
   }
 
   checkItemsPerPage() {
-    if (window.innerWidth < 640) {
+    if (window.innerWidth < 680) {
       this.itemsPerPage = 1;
-    } else if (window.innerWidth < 960) {
+    } else if (window.innerWidth < 1080) {
       this.itemsPerPage = 2;
-    } else if (window.innerWidth < 1280) {
-      this.itemsPerPage = 3;
     } else {
-      this.itemsPerPage = 4;
+      this.itemsPerPage = 3;
     }
   }
 
@@ -148,7 +150,14 @@ export class ResourceCarousel {
     const dots = this.container.querySelectorAll('.dot-indicator');
     if (!track) return;
 
-    const cardWidth = track.firstElementChild ? track.firstElementChild.getBoundingClientRect().width + 20 : 280;
+    let cardWidth = 0;
+    if (track.children.length > 1) {
+      cardWidth = track.children[1].offsetLeft - track.children[0].offsetLeft;
+    } else if (track.firstElementChild) {
+      cardWidth = track.firstElementChild.getBoundingClientRect().width + 22;
+    } else {
+      cardWidth = 320;
+    }
     track.style.transform = `translateX(-${this.currentIndex * cardWidth}px)`;
 
     dots.forEach((dot, idx) => {
@@ -214,6 +223,7 @@ export class ResourceCarousel {
     `;
 
     this.attachCardEvents();
+    this.updatePosition();
   }
 
   createCardHtml(item) {

@@ -100,7 +100,7 @@ export class InteractiveAnimations {
         const rect = pencil.getBoundingClientRect();
         this.spawnFlightTrail(rect.left, rect.top, 14);
 
-        this.showDoodleBubble(pencil, 'Zoom! Ready to write lesson plans! ✏️💨', 'bottom-right');
+        this.showDoodleBubble(pencil, 'Zoom! Ready to write lesson plans! ✏️💨', 'top-right');
 
         setTimeout(() => {
           pencil.classList.remove('pencil-looping');
@@ -126,7 +126,7 @@ export class InteractiveAnimations {
           '#FF8DA1', '#A8DADC', '#80DEEA', '#FFE082', '#E1BEE7'
         ], ['📖', 'A', 'B', 'C', '1', '2', '3', '⭐'], 16);
 
-        this.showDoodleBubble(books, 'Knowledge unlocked! 100% Curriculum Magic! 📚🌟', 'bottom-left');
+        this.showDoodleBubble(books, 'Knowledge unlocked! 100% Curriculum Magic! 📚🌟', 'top-left');
 
         setTimeout(() => {
           books.classList.remove('books-accordion-boing');
