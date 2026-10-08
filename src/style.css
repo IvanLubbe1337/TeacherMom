@@ -347,17 +347,125 @@ body.default-cursor {
   overflow: hidden;
 }
 
-/* Floating Hero Doodles (Sun, Cloud, Pencil, Books) */
+/* Floating Hero Doodles (Sun, Cloud, Pencil, Books) - Fully Interactive */
 .hero-doodle {
   position: absolute;
-  pointer-events: none;
-  z-index: 1;
+  pointer-events: auto; /* Enable interactive clicks & hovers */
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
 }
 
+.hero-doodle:hover {
+  filter: drop-shadow(0 10px 20px rgba(255, 128, 171, 0.45));
+}
+
+.hero-doodle:active {
+  transform: scale(0.92);
+}
+
+/* Doodle Hover Tooltip Hint */
+.doodle-hover-hint {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px) scale(0.8);
+  opacity: 0;
+  pointer-events: none;
+  background: #3D2C2E;
+  color: #FFFFFF;
+  font-family: var(--font-comic);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(61, 44, 46, 0.25);
+  transition: opacity 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100;
+}
+
+.doodle-hover-hint::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px 4px 0 4px;
+  border-style: solid;
+  border-color: #3D2C2E transparent transparent transparent;
+}
+
+.hero-doodle:hover .doodle-hover-hint {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* Doodle Comic Speech Bubble on Click */
+.doodle-comic-pop {
+  position: absolute;
+  background: #FFFFFF;
+  color: #3D2C2E;
+  border: 2.5px solid #3D2C2E;
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-family: var(--font-bubbly);
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 6px 0 rgba(61, 44, 46, 0.15), 0 10px 25px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  z-index: 120;
+  white-space: nowrap;
+  animation: doodleBubblePopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.doodle-comic-pop.bubble-top-left {
+  top: -46px;
+  left: -20px;
+}
+
+.doodle-comic-pop.bubble-top-right {
+  top: -46px;
+  right: -20px;
+}
+
+.doodle-comic-pop.bubble-bottom-left {
+  bottom: -46px;
+  left: -10px;
+}
+
+.doodle-comic-pop.bubble-bottom-right {
+  bottom: -46px;
+  right: -10px;
+}
+
+.doodle-comic-pop.bubble-fade-out {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.9);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+@keyframes doodleBubblePopIn {
+  0% { transform: translateY(12px) scale(0.6); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 1. Cartoon Sun Interactive Physics */
 .doodle-sun {
   top: 24px;
   left: 36px;
   animation: sunFloat 4.5s infinite ease-in-out;
+}
+
+.doodle-sun:hover {
+  animation-play-state: paused;
+  transform: scale(1.15) rotate(12deg);
+}
+
+.doodle-sun.sun-celebrating {
+  animation: sunSpinCelebrate 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
 }
 
 @keyframes sunFloat {
@@ -365,10 +473,28 @@ body.default-cursor {
   50% { transform: translateY(-10px) rotate(6deg); }
 }
 
+@keyframes sunSpinCelebrate {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.35) rotate(180deg); filter: drop-shadow(0 0 25px #FFD166); }
+  60% { transform: scale(1.25) rotate(540deg); }
+  85% { transform: scale(1.1) rotate(720deg); }
+  100% { transform: scale(1) rotate(720deg); }
+}
+
+/* 2. Smiling Fluffy Cloud Interactive Physics */
 .doodle-cloud {
   top: 20px;
   right: 50px;
   animation: cloudDrift 6s infinite ease-in-out;
+}
+
+.doodle-cloud:hover {
+  animation-play-state: paused;
+  transform: scale(1.14) translateY(-4px);
+}
+
+.doodle-cloud.cloud-squishing {
+  animation: cloudSquishRain 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
 
 @keyframes cloudDrift {
@@ -376,10 +502,28 @@ body.default-cursor {
   50% { transform: translateX(-16px); }
 }
 
+@keyframes cloudSquishRain {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.32, 0.68) translateY(12px); filter: drop-shadow(0 12px 20px rgba(128, 222, 234, 0.7)); }
+  50% { transform: scale(0.85, 1.25) translateY(-14px); }
+  75% { transform: scale(1.08, 0.94) translateY(2px); }
+  100% { transform: scale(1, 1); }
+}
+
+/* 3. Flying Pencil Interactive Physics */
 .doodle-pencil-fly {
   bottom: 24px;
   right: 48px;
   animation: pencilFly 4s infinite ease-in-out;
+}
+
+.doodle-pencil-fly:hover {
+  animation-play-state: paused;
+  transform: scale(1.18) rotate(-14deg);
+}
+
+.doodle-pencil-fly.pencil-looping {
+  animation: pencilLoopDeLoop 0.95s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
 }
 
 @keyframes pencilFly {
@@ -387,15 +531,42 @@ body.default-cursor {
   50% { transform: translateY(-14px) rotate(-6deg); }
 }
 
+@keyframes pencilLoopDeLoop {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(-35px, -50px) rotate(-120deg) scale(1.25); filter: drop-shadow(0 10px 18px rgba(255, 128, 171, 0.6)); }
+  50% { transform: translate(-70px, -15px) rotate(-240deg) scale(1.3); }
+  75% { transform: translate(-25px, 25px) rotate(-330deg) scale(1.12); }
+  100% { transform: translate(0, 0) rotate(-360deg) scale(1); }
+}
+
+/* 4. Book Stack Interactive Physics */
 .doodle-books-stack {
   bottom: 18px;
   left: 28px;
   animation: booksSway 5s infinite ease-in-out;
 }
 
+.doodle-books-stack:hover {
+  animation-play-state: paused;
+  transform: scale(1.15) translateY(-6px);
+}
+
+.doodle-books-stack.books-accordion-boing {
+  animation: bookAccordionBoing 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
 @keyframes booksSway {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(3deg); }
+}
+
+@keyframes bookAccordionBoing {
+  0% { transform: scale(1, 1) translateY(0); }
+  20% { transform: scale(1.25, 0.7) translateY(12px); filter: drop-shadow(0 14px 22px rgba(255, 141, 161, 0.6)); }
+  45% { transform: scale(0.85, 1.3) translateY(-28px); }
+  65% { transform: scale(1.1, 0.92) translateY(5px); }
+  85% { transform: scale(0.96, 1.04) translateY(-6px); }
+  100% { transform: scale(1, 1) translateY(0); }
 }
 
 /* Hero Layout Grid */
@@ -5646,5 +5817,497 @@ body.default-cursor {
   font-size: 12px;
   padding: 4px 10px;
 }
+
+/* ==========================================================================
+   INTERACTIVE FUN ANIMATIONS & WHIMSICAL PLAYGROUNDS
+   ========================================================================== */
+
+/* 1. Mascot Tablet Floater Bubbles */
+.floaty-letters .float-item {
+  transform-origin: center;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.float-item:hover {
+  transform: scale(1.22);
+  filter: drop-shadow(0 4px 12px rgba(255, 94, 126, 0.75));
+}
+
+.float-item-1 { animation: floatBubble1 3.8s ease-in-out infinite; }
+.float-item-2 { animation: floatBubble2 4.2s ease-in-out infinite; }
+.float-item-3 { animation: floatBubble3 3.6s ease-in-out infinite; }
+.float-item-4 { animation: floatBubble4 4.5s ease-in-out infinite; }
+.float-item-5 { animation: floatBubble5 3.9s ease-in-out infinite; }
+.float-item-6 { animation: floatBubble6 4.1s ease-in-out infinite; }
+
+@keyframes floatBubble1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4px, -10px); }
+}
+@keyframes floatBubble2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -12px); }
+}
+@keyframes floatBubble3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -8px); }
+}
+@keyframes floatBubble4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, -10px); }
+}
+@keyframes floatBubble5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-3px, -9px); }
+}
+@keyframes floatBubble6 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -11px); }
+}
+
+.float-item.bubble-popped {
+  transform: scale(0) !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.float-item.bubble-respawning {
+  animation: bubbleRespawn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bubbleRespawn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 2. Interactive Particles (Sparks, Raindrops, Flight Trails) */
+.interactive-spark-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  user-select: none;
+  animation: sparkBurstFly 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes sparkBurstFly {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1.3);
+    opacity: 0;
+  }
+}
+
+.interactive-raindrop-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  animation: rainDropFall 1.05s ease-in forwards;
+}
+
+.interactive-raindrop-particle.drop-droplet {
+  border-radius: 50% 50% 60% 60% / 70% 70% 40% 40%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes rainDropFall {
+  0% {
+    transform: translate(0, 0) scale(0.8);
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(var(--drift), var(--fall-dist)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.interactive-pencil-trail-particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  animation: pencilTrailFade 0.75s ease-out forwards;
+}
+
+@keyframes pencilTrailFade {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* 3. Floating Joy / Cheer Station Widget */
+.floating-cheer-station {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  font-family: var(--font-bubbly);
+}
+
+.cheer-station-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.cheer-main-toggle {
+  background: linear-gradient(135deg, #FF6B8B 0%, #FF8DA1 100%);
+  color: #FFFFFF;
+  border: 3.5px solid #3D2C2E;
+  border-radius: 36px;
+  padding: 10px 18px;
+  font-family: var(--font-bubbly);
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 0 #3D2C2E, 0 12px 24px rgba(255, 107, 139, 0.4);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  user-select: none;
+  animation: cheerIdleFloat 3.5s ease-in-out infinite;
+}
+
+.cheer-main-toggle:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 10px 0 #3D2C2E, 0 16px 28px rgba(255, 107, 139, 0.5);
+}
+
+.cheer-main-toggle:active {
+  transform: translateY(3px) scale(0.96);
+  box-shadow: 0 3px 0 #3D2C2E;
+}
+
+.cheer-main-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.cheer-hint-sparkle {
+  font-size: 14px;
+  animation: sparkleTwinkle 2s infinite ease-in-out;
+}
+
+@keyframes cheerIdleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.3) rotate(18deg); opacity: 1; }
+}
+
+/* Reactions Panel */
+.cheer-reactions-panel {
+  background: #FFFFFF;
+  border: 3.5px solid #3D2C2E;
+  border-radius: 24px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 0 #3D2C2E, 0 16px 36px rgba(0, 0, 0, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px) scale(0.85);
+  transform-origin: bottom right;
+  transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.station-open .cheer-reactions-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.reactions-title-tag {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3D2C2E;
+  text-align: center;
+  padding-bottom: 2px;
+  border-bottom: 2px dashed #FFCCD5;
+}
+
+.reaction-buttons-row {
+  display: flex;
+  gap: 8px;
+}
+
+.cheer-pill-btn {
+  background: #FFF0F3;
+  border: 2.5px solid #3D2C2E;
+  border-radius: 16px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 0 #3D2C2E;
+}
+
+.cheer-pill-btn:hover {
+  transform: translateY(-4px) scale(1.12);
+  background: #FFE5EC;
+  box-shadow: 0 6px 0 #3D2C2E;
+}
+
+.cheer-pill-btn:active,
+.cheer-pill-btn.cheer-btn-squish {
+  transform: translateY(2px) scale(0.92);
+  box-shadow: 0 2px 0 #3D2C2E;
+}
+
+.cheer-pill-btn[data-type="star"]:hover { background: #FFF9C4; }
+.cheer-pill-btn[data-type="apple"]:hover { background: #FFCDD2; }
+.cheer-pill-btn[data-type="pencil"]:hover { background: #E1F5FE; }
+.cheer-pill-btn[data-type="balloon"]:hover { background: #F3E5F5; }
+
+.btn-emoji {
+  font-size: 22px;
+}
+
+.btn-lbl {
+  font-family: var(--font-comic);
+  font-size: 11px;
+  font-weight: bold;
+  color: #3D2C2E;
+}
+
+/* Floating Rising Balloons */
+.interactive-floating-balloon {
+  position: fixed;
+  z-index: 9990;
+  cursor: pointer;
+  user-select: none;
+  animation: balloonAscentSway var(--duration) cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  transition: transform 0.15s ease;
+}
+
+.interactive-floating-balloon:hover {
+  transform: scale(1.22);
+}
+
+.balloon-body {
+  position: relative;
+  width: 48px;
+  height: 56px;
+  background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, var(--balloon-color) 45%, #2B1810 160%);
+  border: 3px solid #3D2C2E;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset -4px -4px 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.balloon-emoji {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+
+.balloon-string {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  width: 2px;
+  height: 22px;
+  background: #3D2C2E;
+  transform-origin: top center;
+  animation: stringWiggle 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes stringWiggle {
+  0% { transform: rotate(-10deg); }
+  100% { transform: rotate(10deg); }
+}
+
+@keyframes balloonAscentSway {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0.95;
+  }
+  25% {
+    transform: translateY(calc(-0.25 * 100vh)) translateX(var(--sway)) rotate(8deg);
+  }
+  50% {
+    transform: translateY(calc(-0.5 * 100vh)) translateX(calc(-1 * var(--sway))) rotate(-6deg);
+  }
+  75% {
+    transform: translateY(calc(-0.75 * 100vh)) translateX(var(--sway)) rotate(8deg);
+  }
+  100% {
+    transform: translateY(calc(-1.1 * 100vh)) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.interactive-floating-balloon.balloon-burst {
+  animation: balloonBurstPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes balloonBurstPop {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* Live Cheer Combo Badge */
+.cheer-combo-badge {
+  position: fixed;
+  background: #FFD166;
+  color: #3D2C2E;
+  border: 2.5px solid #3D2C2E;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-family: var(--font-bubbly);
+  font-size: 13px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 1001;
+  transform: translate(-50%, 0);
+  box-shadow: 0 4px 0 #3D2C2E;
+  animation: comboPillJump 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes comboPillJump {
+  0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+  25% { transform: translate(-50%, -18px) scale(1.2); opacity: 1; }
+  75% { transform: translate(-50%, -24px) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -36px) scale(0.85); opacity: 0; }
+}
+
+/* 4. Resource Card 3D Magnetic Tilt & Rubber Stamp Slam */
+.resource-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.card-sheen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.2s ease;
+}
+
+/* Animated Rubber Stamp */
+.interactive-rubber-stamp {
+  position: absolute;
+  top: 28%;
+  left: 15%;
+  right: 15%;
+  z-index: 25;
+  pointer-events: none;
+  transform: rotate(var(--stamp-rot, -8deg));
+  animation: rubberStampSmash 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.stamp-border {
+  border: 4px dashed #2E7D32;
+  background: rgba(232, 245, 233, 0.94);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.stamp-text {
+  font-family: var(--font-bubbly);
+  font-size: 14px;
+  font-weight: 800;
+  color: #1B5E20;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: block;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.interactive-rubber-stamp.stamp-fade-out {
+  opacity: 0;
+  transform: rotate(var(--stamp-rot, -8deg)) scale(0.9);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+@keyframes rubberStampSmash {
+  0% {
+    transform: rotate(var(--stamp-rot, -8deg)) scale(2.8);
+    opacity: 0;
+  }
+  65% {
+    transform: rotate(var(--stamp-rot, -8deg)) scale(0.92, 1.08);
+    opacity: 1;
+  }
+  85% {
+    transform: rotate(var(--stamp-rot, -8deg)) scale(1.05, 0.95);
+  }
+  100% {
+    transform: rotate(var(--stamp-rot, -8deg)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 5. Brand Logo Heartbeat & Pencil Arc */
+.brand-heart-icon.heart-pumping {
+  animation: heartBeatDouble 0.75s ease-in-out forwards;
+}
+
+@keyframes heartBeatDouble {
+  0% { transform: scale(1); }
+  18% { transform: scale(1.4); }
+  32% { transform: scale(1.1); }
+  48% { transform: scale(1.45); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.brand-pencil-icon.pencil-scribbling {
+  animation: pencilScribbleArc 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pencilScribbleArc {
+  0% { transform: rotate(-35deg) translate(0, 0); }
+  25% { transform: rotate(-10deg) translate(4px, -6px) scale(1.25); }
+  50% { transform: rotate(-55deg) translate(-4px, 4px) scale(1.3); }
+  75% { transform: rotate(-25deg) translate(2px, -3px) scale(1.1); }
+  100% { transform: rotate(-35deg) translate(0, 0) scale(1); }
+}
+
+/* 6. Filter Pills Jelly Squish */
+.jelly-squish-anim {
+  animation: jellySquashWobble 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes jellySquashWobble {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.28, 0.72); }
+  50% { transform: scale(0.82, 1.22); }
+  75% { transform: scale(1.08, 0.94); }
+  100% { transform: scale(1, 1); }
+}
+
 
 

@@ -14,6 +14,7 @@ import { AuthModal } from './authModal.js';
 import { CustomRequestModal } from './customRequestModal.js';
 import { AdminController } from './admin.js';
 import { resourceStore } from './resourceStore.js';
+import { InteractiveAnimations } from './interactiveAnimations.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize Magic Wand Cursor & Stardust
@@ -398,5 +399,10 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
     });
+  });
+
+  // 20. Initialize Interactive Fun Animations (Hero Doodles, Mascot Tablet Bubble Pop, Floating Joy Station, 3D Tilt & Stamps)
+  new InteractiveAnimations({
+    onMascotCheer: triggerMascotCheer
   });
 });
