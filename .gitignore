@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Production build outputs
+dist/
+
+# Local env and temp
+.vite/
+.DS_Store
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
