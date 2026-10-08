@@ -15,11 +15,17 @@ export class ResourceCarousel {
     this.onOpenFlipbook = options.onOpenFlipbook || (() => {});
     this.onBuyResource = options.onBuyResource || (() => {});
     this.onRateResource = options.onRateResource || (() => {});
+    this.onOpenCustomRequest = options.onOpenCustomRequest || (() => {});
+
+    this.currentGradeFilter = 'all';
+    this.currentTypeFilter = 'all';
+    this.currentCurriculumFilter = 'all';
+    this.currentQuery = '';
 
     // Subscribe to store updates (e.g. when Roxy uploads a new resource in Admin or ratings change)
     this.unsubscribe = resourceStore.subscribe(() => {
       this.resources = resourceStore.getResources();
-      this.filterByGrade(this.currentGradeFilter || 'all');
+      this.applyFilters();
     });
 
     this.checkItemsPerPage();
@@ -43,37 +49,76 @@ export class ResourceCarousel {
     }
   }
 
-  filterByGrade(gradeTag) {
-    this.currentGradeFilter = gradeTag;
-    if (!gradeTag || gradeTag === 'all') {
-      this.filteredResources = [...this.resources];
-    } else {
-      this.filteredResources = this.resources.filter(r => 
-        r.gradeTag === gradeTag || r.gradeTag === 'all'
-      );
-    }
+  applyFilters() {
+    this.filteredResources = this.resources.filter(r => {
+      // 1. Grade filter
+      if (this.currentGradeFilter && this.currentGradeFilter !== 'all') {
+        const matchesGrade = r.gradeTag === this.currentGradeFilter || r.gradeTag === 'all';
+        if (!matchesGrade) return false;
+      }
+
+      // 2. Resource Type filter (Workbook, Assessment, Lesson Plan, Teaching Guide)
+      if (this.currentTypeFilter && this.currentTypeFilter !== 'all') {
+        const itemType = (r.resourceType || '').toLowerCase();
+        const targetType = this.currentTypeFilter.toLowerCase();
+        if (!itemType.includes(targetType)) return false;
+      }
+
+      // 3. Curriculum / ATP filter
+      if (this.currentCurriculumFilter && this.currentCurriculumFilter !== 'all') {
+        if (this.currentCurriculumFilter === 'atp') {
+          if (!r.atpAligned) return false;
+        } else {
+          const itemCur = (r.curriculum || '').toLowerCase();
+          const targetCur = this.currentCurriculumFilter.toLowerCase();
+          if (!itemCur.includes(targetCur)) return false;
+        }
+      }
+
+      // 4. Query text filter
+      if (this.currentQuery) {
+        const q = this.currentQuery.toLowerCase();
+        const matches = (
+          r.title.toLowerCase().includes(q) ||
+          (r.subtitle && r.subtitle.toLowerCase().includes(q)) ||
+          (r.resourceType && r.resourceType.toLowerCase().includes(q)) ||
+          (r.audience && r.audience.toLowerCase().includes(q)) ||
+          (r.grade && r.grade.toLowerCase().includes(q)) ||
+          (r.subject && r.subject.toLowerCase().includes(q)) ||
+          (r.curriculum && r.curriculum.toLowerCase().includes(q)) ||
+          (r.atpReference && r.atpReference.toLowerCase().includes(q)) ||
+          (r.term && r.term.toLowerCase().includes(q)) ||
+          (r.year && r.year.toLowerCase().includes(q)) ||
+          (r.description && r.description.toLowerCase().includes(q))
+        );
+        if (!matches) return false;
+      }
+
+      return true;
+    });
+
     this.currentIndex = 0;
     this.render();
   }
 
+  filterByGrade(gradeTag) {
+    this.currentGradeFilter = gradeTag || 'all';
+    this.applyFilters();
+  }
+
+  filterByType(type) {
+    this.currentTypeFilter = type || 'all';
+    this.applyFilters();
+  }
+
+  filterByCurriculum(curriculum) {
+    this.currentCurriculumFilter = curriculum || 'all';
+    this.applyFilters();
+  }
+
   filterByQuery(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      this.filteredResources = [...this.resources];
-    } else {
-      this.filteredResources = this.resources.filter(r => 
-        r.title.toLowerCase().includes(q) ||
-        (r.subtitle && r.subtitle.toLowerCase().includes(q)) ||
-        (r.grade && r.grade.toLowerCase().includes(q)) ||
-        (r.subject && r.subject.toLowerCase().includes(q)) ||
-        (r.curriculum && r.curriculum.toLowerCase().includes(q)) ||
-        (r.term && r.term.toLowerCase().includes(q)) ||
-        (r.year && r.year.toLowerCase().includes(q)) ||
-        (r.description && r.description.toLowerCase().includes(q))
-      );
-    }
-    this.currentIndex = 0;
-    this.render();
+    this.currentQuery = query.trim();
+    this.applyFilters();
   }
 
   next() {
@@ -176,14 +221,25 @@ export class ResourceCarousel {
     const priceFormatted = `${currency}${parseFloat(item.price).toFixed(2)}`;
     const hasSampleUploads = item.sampleImages && item.sampleImages.length > 0;
 
+    const typeIcons = {
+      'Workbook': '📚',
+      'Assessment': '📝',
+      'Lesson Plan': '📋',
+      'Teaching Guide': '📖'
+    };
+    const typeIcon = typeIcons[item.resourceType] || '✨';
+    const typeLabel = item.resourceType || 'Resource';
+
     return `
       <div class="resource-card" data-id="${item.id}" style="--theme-color: ${item.colorTheme || '#FFE5EC'}; --badge-color: ${item.badgeColor || '#FF80AB'}">
         
-        <!-- Top Tags: Curriculum, Grade, & Locked Badge -->
+        <!-- Top Tags: Resource Type, Curriculum, Grade, ATP Badge & Locked -->
         <div class="card-top-bar">
           <div class="card-badges-group">
+            <span class="card-type-badge">${typeIcon} ${typeLabel}</span>
             <span class="card-curriculum-badge">${item.curriculum || 'CAPS'}</span>
             <span class="card-grade-badge">${item.grade}</span>
+            ${item.atpAligned ? `<span class="card-atp-badge" title="${item.atpReference || 'DBE ATP Aligned'}">🇿🇦 ATP Aligned ✓</span>` : ''}
           </div>
           <span class="card-locked-badge" title="Digital files unlocked upon verified payment">🔒 Locked</span>
         </div>
@@ -202,11 +258,19 @@ export class ResourceCarousel {
         <div class="card-content">
           <h4 class="card-title">${item.title}</h4>
           
-          <!-- Metadata Pill Row: Subject, Term & Year -->
+          <!-- Metadata Pill Row: Subject, Term & Year, Audience -->
           <div class="card-meta-tags-row">
             <span class="meta-pill subject-pill">📚 ${item.subject || 'All Subjects'}</span>
             <span class="meta-pill term-pill">📅 ${item.term || 'Term 1'} (${item.year || '2026'})</span>
+            <span class="meta-pill audience-pill">👥 ${item.audience || 'Schools & Parents'}</span>
           </div>
+
+          ${item.atpReference ? `
+            <div class="card-atp-reference-pill">
+              <span class="atp-icon">🎯</span>
+              <span><strong>ATP Focus:</strong> ${item.atpReference}</span>
+            </div>
+          ` : ''}
 
           <p class="card-subtitle">${item.subtitle || item.description || ''}</p>
 
@@ -221,7 +285,9 @@ export class ResourceCarousel {
               <span class="card-price">${priceFormatted}</span>
               <span class="price-sub">EFT / WhatsApp</span>
             </div>
-            <span class="sample-only-pill">Samples Only 👁️</span>
+            <button class="card-customize-trigger-link" data-id="${item.id}" title="Request custom school/parent adaptation (turnaround 3–7 days)">
+              <span>🎨 Customize</span>
+            </button>
           </div>
         </div>
 
@@ -354,6 +420,20 @@ export class ResourceCarousel {
         if (item) {
           sounds.pop(650);
           this.onRateResource(item);
+        }
+      });
+    });
+
+    // Customize for School / Parent button
+    const customBtns = this.container.querySelectorAll('.card-customize-trigger-link');
+    customBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = e.currentTarget.dataset.id;
+        const item = this.resources.find(r => r.id === id);
+        if (item) {
+          sounds.pop(650);
+          this.onOpenCustomRequest(item);
         }
       });
     });

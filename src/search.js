@@ -5,10 +5,15 @@ export class SearchController {
   constructor(options = {}) {
     this.onSearch = options.onSearch || (() => {});
     this.onGradeSelect = options.onGradeSelect || (() => {});
+    this.onTypeSelect = options.onTypeSelect || (() => {});
+    this.onCurriculumSelect = options.onCurriculumSelect || (() => {});
+
     this.searchInput = document.getElementById('searchGradeInput');
     this.searchBuddy = document.getElementById('searchBuddySvg');
     this.searchWrap = document.querySelector('.search-bar-wrap');
     this.gradePills = document.querySelectorAll('.grade-sticker-pill');
+    this.typePills = document.querySelectorAll('.type-sticker-pill');
+    this.curriculumPills = document.querySelectorAll('.curriculum-sticker-pill');
 
     this.init();
   }
@@ -41,7 +46,7 @@ export class SearchController {
 
     // Grade Sticker Pills
     this.gradePills.forEach(pill => {
-      pill.addEventListener('click', (e) => {
+      pill.addEventListener('click', () => {
         const grade = pill.dataset.grade;
         sounds.pop(580);
         
@@ -53,6 +58,38 @@ export class SearchController {
         setTimeout(() => pill.classList.remove('pill-popped'), 300);
 
         this.onGradeSelect(grade);
+      });
+    });
+
+    // Resource Type Sticker Pills (Workbooks, Assessments, Lesson Plans, Teaching Guides)
+    this.typePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const type = pill.dataset.type;
+        sounds.pop(580);
+
+        this.typePills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        pill.classList.add('pill-popped');
+        setTimeout(() => pill.classList.remove('pill-popped'), 300);
+
+        this.onTypeSelect(type);
+      });
+    });
+
+    // Curriculum Sticker Pills (CAPS & ATPs, Cambridge / IEB)
+    this.curriculumPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const cur = pill.dataset.curriculum;
+        sounds.pop(580);
+
+        this.curriculumPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        pill.classList.add('pill-popped');
+        setTimeout(() => pill.classList.remove('pill-popped'), 300);
+
+        this.onCurriculumSelect(cur);
       });
     });
 

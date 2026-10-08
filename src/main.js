@@ -11,6 +11,7 @@ import { CartManager } from './cart.js';
 import { OrderModal } from './orderModal.js';
 import { RateModal } from './rateModal.js';
 import { AuthModal } from './authModal.js';
+import { CustomRequestModal } from './customRequestModal.js';
 import { AdminController } from './admin.js';
 import { resourceStore } from './resourceStore.js';
 
@@ -65,18 +66,23 @@ document.addEventListener('DOMContentLoaded', () => {
     onMascotCheer: triggerMascotCheer
   });
 
-  // 5. Initialize Teacher & Parent Authentication Modal (Google & Custom Registration)
+  // 5. Initialize Bespoke Custom Curriculum Request Modal (for Schools & Parents)
+  const customModal = new CustomRequestModal({
+    onMascotCheer: triggerMascotCheer
+  });
+
+  // 6. Initialize Teacher & Parent Authentication Modal (Google & Custom Registration)
   const authModal = new AuthModal({
     onMascotCheer: triggerMascotCheer
   });
 
-  // 6. Initialize Customer Rate & Review Modal (Requires Authentication)
+  // 7. Initialize Customer Rate & Review Modal (Requires Authentication)
   const rateModal = new RateModal({
     onMascotCheer: triggerMascotCheer,
     authModal: authModal
   });
 
-  // 7. Initialize Cart Manager (Dispatches to Order Reference modal upon order)
+  // 8. Initialize Cart Manager (Dispatches to Order Reference modal upon order)
   const cart = new CartManager({
     onMascotCheer: triggerMascotCheer,
     onProceedToOrder: (items) => {
@@ -84,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 7. Initialize Live Preview Flipbook
+  // 9. Initialize Live Preview Flipbook
   const flipbook = new FlipbookModal({
     onBuyResource: (resource) => {
       orderModal.open(resource);
@@ -94,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 8. Initialize Resource Carousel ("Shop by Grade")
+  // 10. Initialize Resource Carousel ("Shop by Grade")
   const carousel = new ResourceCarousel('gradeCarouselContainer', {
     onBuyResource: (resource) => {
       orderModal.open(resource);
@@ -108,17 +114,34 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     onRateResource: (resource) => {
       rateModal.open(resource);
+    },
+    onOpenCustomRequest: (resource) => {
+      customModal.open(resource);
     }
   });
 
-  // 9. Initialize Search Controller & Grade Filter Stickers
+  // 11. Initialize Search Controller & Sticker Pills (Grade, Resource Type, Curriculum)
   new SearchController({
     onSearch: (query) => {
       carousel.filterByQuery(query);
     },
     onGradeSelect: (grade) => {
       carousel.filterByGrade(grade);
+    },
+    onTypeSelect: (type) => {
+      carousel.filterByType(type);
+    },
+    onCurriculumSelect: (curriculum) => {
+      carousel.filterByCurriculum(curriculum);
     }
+  });
+
+  // 12. Wire Custom Order Triggers across page
+  document.querySelectorAll('.open-custom-order-trigger').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      customModal.open();
+    });
   });
 
   // 10. Initialize The Freebie Sandbox & Fun Zone Minigames

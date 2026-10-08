@@ -2,25 +2,30 @@
 // Supports dynamic uploads, metadata filtering (curriculum, subject, term, year),
 // ratings, reviews moderation (admin pick featured review), dynamic stats & bestsellers.
 
-const STORAGE_KEY = 'teachermom_catalog_v2';
+const STORAGE_KEY = 'teachermom_catalog_v3';
 const REVIEWS_KEY = 'teachermom_reviews_v2';
 const SETTINGS_KEY = 'teachermom_admin_settings_v2';
 const AUTH_KEY = 'teachermom_admin_auth_v2';
 const USERS_KEY = 'teachermom_users_v2';
 const USER_SESSION_KEY = 'teachermom_user_session_v2';
 const MAILING_LIST_KEY = 'teachermom_mailing_list_v2';
+const CUSTOM_REQUESTS_KEY = 'teachermom_custom_requests_v2';
 
 export const AUTHORIZED_ADMIN_EMAIL = 'teachermomroxy3@gmail.com';
 
 export const INITIAL_RESOURCES = [
   {
-    id: 'caps-gr1-phonics-t1',
-    title: 'Grade 1 Phonics Fun Pack 🎒',
-    subtitle: 'Sound Families & Sight Words',
+    id: 'caps-gr1-phonics-wb-t1',
+    title: 'Grade 1 Phonics & Handwriting Workbook 🎒',
+    subtitle: 'Sound Families, CVC Blends & Letter Paths',
+    resourceType: 'Workbook',
+    audience: 'Schools & Parents',
     subject: 'English (HL)',
     grade: 'Grade 1',
     gradeTag: '1st',
     curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'DBE 2026 Term 1 ATP Week 1-10',
     term: 'Term 1',
     year: '2026',
     price: 95.00,
@@ -30,21 +35,105 @@ export const INITIAL_RESOURCES = [
     reviews: 320,
     colorTheme: '#FFE5EC',
     badgeColor: '#FF80AB',
-    tag: '#1 Bestseller ⭐',
+    tag: '#1 Bestseller Workbook ⭐',
     faceType: 'backpack',
-    description: 'Comprehensive single sounds, blending flashcards, handwriting paths, and vowel family workbooks.',
+    description: 'Comprehensive 52-page workbook covering single sounds, blending flashcards, handwriting paths, and vowel family workbooks aligned to DBE ATP week-by-week pacing.',
     sampleImages: [
       'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=600&q=80'
     ]
   },
   {
-    id: 'caps-gr1-math-t1',
-    title: 'Grade 1 Math Mania Workbook ✏️',
-    subtitle: 'Numbers, Operations & Relationships',
+    id: 'caps-gr1-math-assess-t1',
+    title: 'Grade 1 Term 1 Formal Math Assessment & Memo 📝',
+    subtitle: 'Summative FAT 1 Task, Moderation Grid & Rubrics',
+    resourceType: 'Assessment',
+    audience: 'Schools & Teachers',
     subject: 'Mathematics',
     grade: 'Grade 1',
     gradeTag: '1st',
     curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'DBE Formal Assessment Task (FAT 1)',
+    term: 'Term 1',
+    year: '2026',
+    price: 110.00,
+    currency: 'R',
+    locked: true,
+    rating: 5.0,
+    reviews: 215,
+    colorTheme: '#FFF0F5',
+    badgeColor: '#FF5E7E',
+    tag: 'Includes Full Memo 🔥',
+    faceType: 'happy-eyes',
+    description: 'DBE-compliant Term 1 Formal Assessment Task with printable learner papers, step-by-step marking memorandum, weighting grid, and school moderation checklist.',
+    sampleImages: [
+      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80'
+    ]
+  },
+  {
+    id: 'caps-gr2-english-lp-t1',
+    title: 'Grade 2 English HL 10-Week Lesson Plan Pack 📋',
+    subtitle: 'Daily ATP Milestones, Phonics & Resource Links',
+    resourceType: 'Lesson Plan',
+    audience: 'Schools & Teachers',
+    subject: 'English (HL)',
+    grade: 'Grade 2',
+    gradeTag: '2nd',
+    curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: '2026 Annual Teaching Plan (ATP)',
+    term: 'Term 1',
+    year: '2026',
+    price: 135.00,
+    currency: 'R',
+    locked: true,
+    rating: 4.9,
+    reviews: 178,
+    colorTheme: '#E8F5E9',
+    badgeColor: '#66BB6A',
+    tag: '10-Week Plan Pack 🌿',
+    faceType: 'sticky-smile',
+    description: 'Complete 10-week lesson plan series broken down week-by-week and day-by-day according to DBE CAPS ATP milestones with practical differentiation tips.',
+    sampleImages: []
+  },
+  {
+    id: 'caps-fp-teaching-guide-t1',
+    title: 'Foundation Phase Comprehensive Teaching Guide 📖',
+    subtitle: 'Pedagogy Facilitation, Remedial Strategies & ATP Pacing',
+    resourceType: 'Teaching Guide',
+    audience: 'Schools & Parents',
+    subject: 'Methodology & Literacy',
+    grade: 'Grade R - 3',
+    gradeTag: 'all',
+    curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'CAPS Curriculum & Remedial Framework',
+    term: 'Term 1 - 4',
+    year: '2026',
+    price: 140.00,
+    currency: 'R',
+    locked: true,
+    rating: 5.0,
+    reviews: 240,
+    colorTheme: '#FFF9C4',
+    badgeColor: '#FBC02D',
+    tag: 'Master Guide 📚',
+    faceType: 'happy-eyes',
+    description: 'Step-by-step facilitation guide for teachers and parents: teaching tricky phonics blends, concrete-to-abstract math transitions, and mastering ATP deadlines.',
+    sampleImages: []
+  },
+  {
+    id: 'caps-gr1-math-wb-t1',
+    title: 'Grade 1 Math Mania Workbook ✏️',
+    subtitle: 'Numbers, Operations & Relationships',
+    resourceType: 'Workbook',
+    audience: 'Schools & Parents',
+    subject: 'Mathematics',
+    grade: 'Grade 1',
+    gradeTag: '1st',
+    curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'DBE 2026 Term 1 ATP Week 1-10',
     term: 'Term 1',
     year: '2026',
     price: 85.00,
@@ -54,44 +143,77 @@ export const INITIAL_RESOURCES = [
     reviews: 280,
     colorTheme: '#E0F7FA',
     badgeColor: '#4DD0E1',
-    tag: 'Math Winner 🔥',
+    tag: 'Math Favorite 💛',
     faceType: 'happy-eyes',
     description: '40 pages of CAPS-aligned number sense, ten-frames, counting in 1s & 2s, and playful math story mats.',
     sampleImages: [
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80'
     ]
   },
   {
-    id: 'caps-gr2-spelling-t1',
-    title: 'Grade 2 Spelling Stars & Phonics ⭐',
-    subtitle: 'Blends, Digraphs & Word Lists',
-    subject: 'English (HL)',
-    grade: 'Grade 2',
-    gradeTag: '2nd',
+    id: 'caps-gr3-math-assess-t1',
+    title: 'Grade 3 Baseline & Term 1 Math Assessment 🔢',
+    subtitle: 'Diagnostic Baseline, FAT 1 Test & Marking Memo',
+    resourceType: 'Assessment',
+    audience: 'Schools & Teachers',
+    subject: 'Mathematics',
+    grade: 'Grade 3',
+    gradeTag: '3rd',
     curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'DBE FAT 1 & Diagnostic Baseline',
     term: 'Term 1',
     year: '2026',
-    price: 90.00,
+    price: 120.00,
     currency: 'R',
     locked: true,
     rating: 4.9,
-    reviews: 190,
+    reviews: 164,
     colorTheme: '#FFF3E0',
     badgeColor: '#FFA726',
-    tag: 'Classroom Hit 💛',
+    tag: 'Memo Included ⭐',
     faceType: 'sticky-smile',
-    description: 'Weekly spelling lists, phoneme frames, dictation sentences, and fun sticky-note word hunt puzzles.',
+    description: 'Diagnostic baseline assessment to identify Grade 3 foundational gaps followed by official Term 1 summative tests, scoring matrices, and remedial action sheets.',
     sampleImages: []
   },
   {
-    id: 'caps-grr-lifeskills-t1',
-    title: 'Grade R Early Learning Bundle 🍼',
+    id: 'cambridge-early-reading-guide',
+    title: 'Cambridge Early Reader Facilitation Guide 🦁',
+    subtitle: 'Guided Reading Stages & Parent Prompts',
+    resourceType: 'Teaching Guide',
+    audience: 'Schools & Parents',
+    subject: 'Reading & Literacy',
+    grade: 'Grade 1',
+    gradeTag: '1st',
+    curriculum: 'Cambridge Primary',
+    atpAligned: false,
+    atpReference: 'Cambridge Primary Stage 1 Framework',
+    term: 'Stage 1',
+    year: '2026',
+    price: 125.00,
+    currency: 'R',
+    locked: true,
+    rating: 4.8,
+    reviews: 88,
+    colorTheme: '#F3E5F5',
+    badgeColor: '#BA68C8',
+    tag: 'Cambridge Primary 🦁',
+    faceType: 'hero-wink',
+    description: 'Illustrated short stories with multiple choice questions, draw-your-answer prompts, running records, and vocabulary flashcards.',
+    sampleImages: []
+  },
+  {
+    id: 'caps-grr-lifeskills-wb-t1',
+    title: 'Grade R Early Learning Readiness Workbook 🍼',
     subtitle: 'Fine Motor & Visual Perception',
+    resourceType: 'Workbook',
+    audience: 'Schools & Parents',
     subject: 'Life Skills',
     grade: 'Grade R',
     gradeTag: 'pre-k',
     curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'Grade R CAPS ATP Term 1',
     term: 'Term 1',
     year: '2026',
     price: 75.00,
@@ -107,48 +229,69 @@ export const INITIAL_RESOURCES = [
     sampleImages: []
   },
   {
-    id: 'caps-gr3-math-t1',
-    title: 'Grade 3 Mental Math & Word Problems 🔢',
-    subtitle: 'Times Tables & Place Value',
-    subject: 'Mathematics',
-    grade: 'Grade 3',
-    gradeTag: '3rd',
+    id: 'caps-gr2-lifeskills-lp-t1',
+    title: 'Grade 2 Life Skills 10-Week Lesson Plans 🎨',
+    subtitle: 'Beginning Knowledge, Arts & Physical Education',
+    resourceType: 'Lesson Plan',
+    audience: 'Schools & Teachers',
+    subject: 'Life Skills',
+    grade: 'Grade 2',
+    gradeTag: '2nd',
     curriculum: 'CAPS',
+    atpAligned: true,
+    atpReference: 'DBE 2026 Term 1 CAPS ATP',
     term: 'Term 1',
     year: '2026',
-    price: 95.00,
+    price: 115.00,
     currency: 'R',
     locked: true,
-    rating: 4.8,
-    reviews: 164,
-    colorTheme: '#E8F5E9',
-    badgeColor: '#81C784',
-    tag: 'Teacher Pick 🌿',
-    faceType: 'lion-face',
-    description: 'Daily 5-minute mental math drills, skip counting tables up to 100, and two-step word problem mats.',
+    rating: 4.9,
+    reviews: 92,
+    colorTheme: '#E0F2F1',
+    badgeColor: '#26A69A',
+    tag: 'Ready-to-Teach 🌸',
+    faceType: 'happy-eyes',
+    description: 'Organized weekly life skills lesson plans aligned with DBE Term 1 themes: Healthy Living, My Senses, Safety Rules, and guided creative arts activities.',
     sampleImages: []
+  }
+];
+
+export const INITIAL_CUSTOM_REQUESTS = [
+  {
+    id: 'req-cust-01',
+    refNumber: 'TM-CUST-2026-1042',
+    name: 'Mrs. Mariette Smith',
+    role: 'School Head of Department (Foundation Phase)',
+    school: 'Waterkloof Primary School, Pretoria',
+    email: 'm.smith@waterkloofpri.co.za',
+    phone: '083 456 7890',
+    curriculum: 'CAPS',
+    resourceType: 'Assessment',
+    grade: 'Grade 2',
+    subject: 'Mathematics',
+    turnaround: 'Standard (5-7 business days)',
+    estimatedCost: 320.00,
+    status: 'In Progress',
+    notes: 'Need 40-mark Term 2 Formal Assessment Task adjusted to our school weighting table with school crest and moderation checklist.',
+    date: '2026-04-06'
   },
   {
-    id: 'cambridge-early-reading',
-    title: 'Early Reader Comprehension Quest 🦁',
-    subtitle: 'Guided Reading & Vocabulary',
-    subject: 'Reading & Literacy',
+    id: 'req-cust-02',
+    refNumber: 'TM-CUST-2026-1088',
+    name: 'David & Lisa Coetzee',
+    role: 'Homeschooling Parents',
+    school: 'Independent Homeschool',
+    email: 'david.coetzee@homeed.co.za',
+    phone: '082 987 6543',
+    curriculum: 'CAPS & Cambridge Blend',
+    resourceType: 'Workbook',
     grade: 'Grade 1',
-    gradeTag: '1st',
-    curriculum: 'Cambridge / IEB',
-    term: 'Term 1',
-    year: '2026',
-    price: 80.00,
-    currency: 'R',
-    locked: true,
-    rating: 4.8,
-    reviews: 88,
-    colorTheme: '#FFF9C4',
-    badgeColor: '#FDD835',
-    tag: 'Top Rated 📚',
-    faceType: 'hero-wink',
-    description: 'Illustrated short stories with multiple choice questions, draw-your-answer prompts, and vocabulary flashcards.',
-    sampleImages: []
+    subject: 'English (HL)',
+    turnaround: 'Priority (2-3 business days)',
+    estimatedCost: 260.00,
+    status: 'Completed',
+    notes: 'Custom phonics workbook with larger fonts and tactile coloring borders for our learner with mild visual tracking needs.',
+    date: '2026-04-02'
   }
 ];
 
@@ -260,7 +403,10 @@ export class ResourceStore {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].resourceType) {
+          return parsed;
+        }
       }
     } catch (e) {
       console.warn('Could not read from localStorage', e);
@@ -283,13 +429,17 @@ export class ResourceStore {
     const item = {
       ...newResource,
       id: newResource.id || `res-${Date.now()}`,
+      resourceType: newResource.resourceType || 'Workbook',
+      audience: newResource.audience || 'Schools & Parents',
+      atpAligned: newResource.atpAligned !== false,
+      atpReference: newResource.atpReference || (newResource.atpAligned ? 'CAPS ATP Aligned' : ''),
       locked: true,
       currency: newResource.currency || 'R',
       rating: parseFloat(newResource.rating) || 5.0,
       reviews: parseInt(newResource.reviews, 10) || 1,
       colorTheme: newResource.colorTheme || '#FFE5EC',
       badgeColor: newResource.badgeColor || '#FF80AB',
-      tag: newResource.tag || 'New Resource ✨',
+      tag: newResource.tag || `${newResource.resourceType || 'New Resource'} ✨`,
       faceType: newResource.faceType || 'happy-eyes',
       sampleImages: newResource.sampleImages || []
     };
@@ -301,6 +451,65 @@ export class ResourceStore {
   deleteResource(id) {
     const list = this.getResources().filter(r => r.id !== id);
     this.saveResources(list);
+  }
+
+  // --- Custom Resource Requests (for Schools & Parents) ---
+  getCustomRequests() {
+    try {
+      const stored = localStorage.getItem(CUSTOM_REQUESTS_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    this.saveCustomRequests(INITIAL_CUSTOM_REQUESTS);
+    return INITIAL_CUSTOM_REQUESTS;
+  }
+
+  saveCustomRequests(requests) {
+    try {
+      localStorage.setItem(CUSTOM_REQUESTS_KEY, JSON.stringify(requests));
+      this.notifyListeners();
+    } catch (e) {
+      console.error('Failed to save custom requests', e);
+    }
+  }
+
+  addCustomRequest(data) {
+    const requests = this.getCustomRequests();
+    const newReq = {
+      id: data.id || `req-cust-${Date.now()}`,
+      refNumber: data.refNumber || `TM-CUST-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: data.name || 'Anonymous Educator',
+      role: data.role || 'School Teacher / Parent',
+      school: data.school || 'Independent School / Home',
+      email: data.email || '',
+      phone: data.phone || '',
+      curriculum: data.curriculum || 'CAPS',
+      resourceType: data.resourceType || 'Workbook',
+      grade: data.grade || 'Grade 1',
+      subject: data.subject || 'All Subjects',
+      turnaround: data.turnaround || 'Standard (5-7 business days)',
+      estimatedCost: parseFloat(data.estimatedCost) || 250.00,
+      status: 'Pending Review',
+      notes: data.notes || '',
+      date: new Date().toISOString().split('T')[0]
+    };
+    requests.unshift(newReq);
+    this.saveCustomRequests(requests);
+    return newReq;
+  }
+
+  updateCustomRequestStatus(id, newStatus) {
+    const requests = this.getCustomRequests();
+    const target = requests.find(r => r.id === id);
+    if (target) {
+      target.status = newStatus;
+      this.saveCustomRequests(requests);
+    }
+    return target;
+  }
+
+  deleteCustomRequest(id) {
+    const requests = this.getCustomRequests().filter(r => r.id !== id);
+    this.saveCustomRequests(requests);
   }
 
   // --- Dynamic Ratings on Resources ---

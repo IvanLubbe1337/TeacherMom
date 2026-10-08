@@ -51,11 +51,13 @@ export class OrderModal {
             </div>
 
             <div class="resource-metadata-pill-grid">
+              <div class="meta-tag"><strong>Type:</strong> <span id="orderMetaType">Workbook</span></div>
               <div class="meta-tag"><strong>Curriculum:</strong> <span id="orderMetaCurriculum">CAPS</span></div>
+              <div class="meta-tag"><strong>ATP Focus:</strong> <span id="orderMetaAtp">DBE ATP Aligned ✓</span></div>
               <div class="meta-tag"><strong>Grade:</strong> <span id="orderMetaGrade">Grade 1</span></div>
               <div class="meta-tag"><strong>Subject:</strong> <span id="orderMetaSubject">Mathematics</span></div>
               <div class="meta-tag"><strong>Term:</strong> <span id="orderMetaTerm">Term 1</span></div>
-              <div class="meta-tag"><strong>Year:</strong> <span id="orderMetaYear">2026</span></div>
+              <div class="meta-tag"><strong>Audience:</strong> <span id="orderMetaAudience">Schools & Parents</span></div>
               <div class="meta-tag locked-tag">🔒 Status: <span>Locked PDF</span></div>
             </div>
           </div>
@@ -179,11 +181,13 @@ export class OrderModal {
     this.modalEl.querySelector('#orderResourceTitle').textContent = itemsTitle;
     this.modalEl.querySelector('#orderResourcePrice').textContent = `${currency}${totalPrice.toFixed(2)}`;
 
+    this.modalEl.querySelector('#orderMetaType').textContent = resource.resourceType || 'Workbook';
     this.modalEl.querySelector('#orderMetaCurriculum').textContent = resource.curriculum || 'CAPS';
+    this.modalEl.querySelector('#orderMetaAtp').textContent = resource.atpAligned ? (resource.atpReference || 'DBE ATP Aligned ✓') : 'Standard Curriculum';
     this.modalEl.querySelector('#orderMetaGrade').textContent = resource.grade || 'Grade 1';
     this.modalEl.querySelector('#orderMetaSubject').textContent = resource.subject || 'All Subjects';
     this.modalEl.querySelector('#orderMetaTerm').textContent = resource.term || 'Term 1';
-    this.modalEl.querySelector('#orderMetaYear').textContent = resource.year || '2026';
+    this.modalEl.querySelector('#orderMetaAudience').textContent = resource.audience || 'Schools & Parents';
 
     this.modalEl.classList.add('active');
   }
@@ -216,10 +220,13 @@ export class OrderModal {
       `*Invoice / Payment Reference:* ${invoiceNum}`,
       `--------------------------------`,
       `*Resource:* ${itemsTitle}`,
+      `*Resource Type:* ${resource.resourceType || 'Workbook'}`,
       `*Curriculum:* ${resource.curriculum || 'CAPS'}`,
+      `*ATP Alignment:* ${resource.atpAligned ? (resource.atpReference || 'DBE ATP Aligned ✓') : 'Standard Curriculum'}`,
       `*Grade:* ${resource.grade || 'General'}`,
       `*Subject:* ${resource.subject || 'General'}`,
       `*Term & Year:* ${resource.term || 'Term 1'} (${resource.year || '2026'})`,
+      `*Target Audience:* ${resource.audience || 'Schools & Parents'}`,
       `*Total Amount Due:* ${currency}${totalPrice.toFixed(2)}`,
       `*Status:* 🔒 Locked Digital Download`,
       `--------------------------------`,

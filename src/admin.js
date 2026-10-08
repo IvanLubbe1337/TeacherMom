@@ -198,6 +198,7 @@ export class AdminController {
         <div class="admin-tab-nav">
           <button class="admin-tab-btn active" data-tab="uploadTab">✨ Upload Resource</button>
           <button class="admin-tab-btn" data-tab="catalogTab">📚 Manage Catalog (${resources.length})</button>
+          <button class="admin-tab-btn" data-tab="customTab">🎨 Custom School Requests (${resourceStore.getCustomRequests().length})</button>
           <button class="admin-tab-btn" data-tab="reviewsTab">💬 Reviews & Featured Quote (${reviews.length})</button>
           <button class="admin-tab-btn" data-tab="usersTab">👥 Users & Mailing List (${mailingList.length})</button>
         </div>
@@ -214,6 +215,31 @@ export class AdminController {
               <div class="form-field">
                 <label>Subtitle / Focus: *</label>
                 <input type="text" id="resSubtitle" placeholder="e.g. Healthy Habits & Visual Perception" required />
+              </div>
+            </div>
+
+            <!-- Resource Type, Audience & ATP Focus -->
+            <div class="form-row-3">
+              <div class="form-field">
+                <label>Resource Type: *</label>
+                <select id="resType" required>
+                  <option value="Workbook" selected>📚 Workbook</option>
+                  <option value="Assessment">📝 Assessment (FAT / Exam & Memo)</option>
+                  <option value="Lesson Plan">📋 Lesson Plan (Weekly ATP Series)</option>
+                  <option value="Teaching Guide">📖 Teaching Guide & Methodology</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Audience: *</label>
+                <select id="resAudience" required>
+                  <option value="Schools & Parents" selected>Schools & Parents</option>
+                  <option value="Schools & Teachers">Schools & Teachers</option>
+                  <option value="Parents & Homeschoolers">Parents & Homeschoolers</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>DBE ATP Alignment / Reference: *</label>
+                <input type="text" id="resAtpReference" placeholder="e.g. 2026 Term 1 CAPS ATP Week 1-10" value="DBE 2026 CAPS ATP Aligned" required />
               </div>
             </div>
 
@@ -310,7 +336,16 @@ export class AdminController {
           <div class="admin-catalog-list" id="adminCatalogList"></div>
         </div>
 
-        <!-- Tab 3: Reviews & Featured Testimonial Quote Picker -->
+        <!-- Tab 3: Custom School & Parent Orders -->
+        <div class="admin-tab-content" id="customTab">
+          <div class="admin-custom-header">
+            <h4>Bespoke Curriculum Customization Inquiries</h4>
+            <p>School and parent requests with calculated turnaround times, pricing, and custom ATP specifications.</p>
+          </div>
+          <div class="admin-custom-requests-list" id="adminCustomRequestsList"></div>
+        </div>
+
+        <!-- Tab 4: Reviews & Featured Testimonial Quote Picker -->
         <div class="admin-tab-content" id="reviewsTab">
           
           <div class="featured-quote-preview-banner">
@@ -453,10 +488,14 @@ export class AdminController {
       const newResource = {
         title: container.querySelector('#resTitle').value.trim(),
         subtitle: container.querySelector('#resSubtitle').value.trim(),
+        resourceType: container.querySelector('#resType').value,
+        audience: container.querySelector('#resAudience').value,
         curriculum: container.querySelector('#resCurriculum').value,
         subject: container.querySelector('#resSubject').value,
         grade: gradeVal,
         gradeTag: gradeTag,
+        atpAligned: true,
+        atpReference: container.querySelector('#resAtpReference').value.trim() || 'DBE 2026 CAPS ATP Aligned',
         term: container.querySelector('#resTerm').value,
         year: container.querySelector('#resYear').value.trim() || '2026',
         price: parseFloat(container.querySelector('#resPrice').value) || 85.00,
@@ -508,6 +547,9 @@ export class AdminController {
     // Render Current Catalog Tab
     this.renderCatalogList(container.querySelector('#adminCatalogList'));
 
+    // Render Custom Requests Tab
+    this.renderCustomRequestsList(container);
+
     // Render Reviews Tab
     this.renderReviewsList(container);
 
@@ -544,6 +586,108 @@ export class AdminController {
           sounds.pop(350);
           resourceStore.deleteResource(id);
           this.renderCatalogList(listContainer);
+        }
+      });
+    });
+  }
+
+  renderCustomRequestsList(container) {
+    const listContainer = container.querySelector('#adminCustomRequestsList');
+    if (!listContainer) return;
+
+    const requests = resourceStore.getCustomRequests();
+    if (requests.length === 0) {
+      listContainer.innerHTML = `
+        <div class="empty-admin-list">
+          <p>No custom inquiries yet. Requests from schools and parents will appear here automatically!</p>
+        </div>
+      `;
+      return;
+    }
+
+    listContainer.innerHTML = requests.map(req => {
+      const statusColors = {
+        'Pending Review': '#FFA726',
+        'In Progress': '#42A5F5',
+        'Ready for Review': '#AB47BC',
+        'Completed': '#66BB6A'
+      };
+      const currentColor = statusColors[req.status] || '#78909C';
+
+      return `
+        <div class="admin-custom-req-card" data-id="${req.id}">
+          <div class="req-top-row">
+            <div class="req-ref-box">
+              <span class="req-ref-tag">${req.refNumber}</span>
+              <span class="req-date-tag">📅 ${req.date || '2026'}</span>
+            </div>
+            <div class="req-status-box">
+              <select class="req-status-select" data-id="${req.id}" style="border-color: ${currentColor}; color: ${currentColor}">
+                <option value="Pending Review" ${req.status === 'Pending Review' ? 'selected' : ''}>⏳ Pending Review</option>
+                <option value="In Progress" ${req.status === 'In Progress' ? 'selected' : ''}>🛠️ In Progress</option>
+                <option value="Ready for Review" ${req.status === 'Ready for Review' ? 'selected' : ''}>📋 Ready for Review</option>
+                <option value="Completed" ${req.status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="req-customer-details">
+            <h5 class="req-cust-name">${req.name} <span class="req-cust-role">(${req.role || 'Educator'})</span></h5>
+            <div class="req-school-tag">🏫 ${req.school || 'Private Inquiry'}</div>
+            <div class="req-contact-row">
+              <span>📱 <strong>${req.phone}</strong></span>
+              <span>✉️ <strong>${req.email}</strong></span>
+            </div>
+          </div>
+
+          <div class="req-resource-specs-grid">
+            <div class="spec-pill"><strong>Type:</strong> ${req.resourceType || 'Workbook'}</div>
+            <div class="spec-pill"><strong>Curriculum:</strong> ${req.curriculum || 'CAPS'}</div>
+            <div class="spec-pill"><strong>Grade:</strong> ${req.grade || 'Grade 1'}</div>
+            <div class="spec-pill"><strong>Subject:</strong> ${req.subject || 'All Subjects'}</div>
+            <div class="spec-pill urgency-pill"><strong>Turnaround:</strong> ${req.turnaround || '5-7 days'}</div>
+            <div class="spec-pill price-pill"><strong>Est. Quote:</strong> R${parseFloat(req.estimatedCost || 220).toFixed(2)}</div>
+          </div>
+
+          <div class="req-notes-quote-box">
+            <span class="notes-lbl">Customization Brief / ATP Requirements:</span>
+            <p class="notes-text">"${req.notes || 'No specific notes provided.'}"</p>
+          </div>
+
+          <div class="req-actions-bar">
+            <a href="https://wa.me/${(req.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${req.name}! Roxy here from TeacherMom regarding your custom resource request (${req.refNumber}).`)}" target="_blank" class="bubble-pill-btn btn-sm btn-whatsapp-direct">
+              💬 WhatsApp Customer
+            </a>
+            <a href="mailto:${req.email}?subject=${encodeURIComponent(`TeacherMom Custom Quote: ${req.refNumber}`)}" class="bubble-pill-btn btn-sm btn-email-direct">
+              ✉️ Email Customer
+            </a>
+            <button class="delete-req-btn text-link-btn" data-id="${req.id}">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Wire status changer
+    listContainer.querySelectorAll('.req-status-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        sounds.pop(600);
+        const id = e.currentTarget.dataset.id;
+        const newStatus = e.currentTarget.value;
+        resourceStore.updateCustomRequestStatus(id, newStatus);
+        this.renderCustomRequestsList(container);
+      });
+    });
+
+    // Wire delete
+    listContainer.querySelectorAll('.delete-req-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        if (confirm('Delete this custom inquiry?')) {
+          sounds.pop(350);
+          resourceStore.deleteCustomRequest(id);
+          this.renderCustomRequestsList(container);
         }
       });
     });

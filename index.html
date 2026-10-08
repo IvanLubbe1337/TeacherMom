@@ -60,6 +60,7 @@
       <nav class="nav-bubble-pills" aria-label="Main navigation">
         <a href="#hero" class="nav-pill pill-pink active">Home</a>
         <a href="#shop-by-grade" class="nav-pill pill-mint">Resources</a>
+        <a href="#custom-orders" class="nav-pill pill-coral open-custom-order-trigger">✨ Custom Orders</a>
         <a href="#fun-zone" class="nav-pill pill-yellow">
           Fun Zone <span class="nav-mini-badge">Games!</span>
         </a>
@@ -197,17 +198,24 @@
           <div class="hero-cta-col">
             <div class="hero-tagline-badge">
               <span class="sparkle-icon">✨</span>
-              <span>100% Teacher-Crafted • Kid-Approved</span>
+              <span>Aligned with ATPs & Different Curriculums • Schools & Parents</span>
             </div>
 
             <h1 class="hero-title">
-              Hands-On Printables for <span class="highlight-underline">Joyful</span> Little Learners!
+              Curriculum Resources for <span class="highlight-underline">Schools & Parents</span>
             </h1>
 
             <p class="hero-desc">
-              Transform classroom time and homeschool tables into an adventure of giggles and discoveries. 
-              Instant-download phonics games, math mats, and interactive bundles!
+              Comprehensive workbooks, formal assessments with memos, 10-week lesson plans, and teaching guides aligned with official Annual Teaching Plans (ATPs). Instant downloads or bespoke school customization tailored to your exact pacing!
             </p>
+
+            <!-- 4 Core Pillars Pills Strip -->
+            <div class="hero-pillars-strip">
+              <div class="pillar-chip"><span class="chip-icon">📚</span> Workbooks</div>
+              <div class="pillar-chip"><span class="chip-icon">📝</span> Assessments & Memos</div>
+              <div class="pillar-chip"><span class="chip-icon">📋</span> Lesson Plans</div>
+              <div class="pillar-chip"><span class="chip-icon">📖</span> Teaching Guides</div>
+            </div>
 
             <!-- Big Glowing Explore Resources Bubble Button -->
             <div class="hero-btn-group">
@@ -217,24 +225,28 @@
                 <span class="cta-arrow">➜</span>
               </a>
 
+              <button class="secondary-bubble-btn open-custom-order-trigger" id="customHeroBtn" title="Request custom adaptation for your school or homeschool">
+                <span>🎨 Custom Adaptation</span>
+              </button>
+
               <a href="#fun-zone" class="secondary-bubble-btn">
-                <span>🎡 Spin Prize Wheel</span>
+                <span>🎡 Fun Zone</span>
               </a>
             </div>
 
             <!-- Mini Trust Icons -->
             <div class="hero-perks-row">
               <div class="perk-item">
-                <span class="perk-icon">⚡</span>
-                <span>Instant PDF Access</span>
+                <span class="perk-icon">🇿🇦</span>
+                <span>DBE CAPS ATP-Aligned</span>
               </div>
               <div class="perk-item">
-                <span class="perk-icon">🖨️</span>
-                <span>Easy-Print Formats</span>
+                <span class="perk-icon">🏫</span>
+                <span>Schools & Homeschools</span>
               </div>
               <div class="perk-item">
-                <span class="perk-icon">💖</span>
-                <span>Loved by 25k+ Moms</span>
+                <span class="perk-icon">⏱️</span>
+                <span>Custom Turnaround 3–7 Days</span>
               </div>
             </div>
 
@@ -254,7 +266,7 @@
             <div class="search-buddy-header">
               <div class="buddy-title-wrap">
                 <h2 class="search-title">Filt-o-Magic Search</h2>
-                <p class="search-sub">Find worksheets by topic, skill, or keyword:</p>
+                <p class="search-sub">Find workbooks, assessments, lesson plans, and guides by topic or ATP:</p>
               </div>
 
               <!-- Interactive Search Bar with Kawaii Magnifying Glass Buddy -->
@@ -263,7 +275,7 @@
                   type="text" 
                   id="searchGradeInput" 
                   class="kawaii-search-input" 
-                  placeholder="Type e.g. Phonics, Addition, Safari..." 
+                  placeholder="Search e.g. Phonics, FAT 1, Mathematics, Lesson Plans..." 
                   aria-label="Search resources"
                 />
 
@@ -296,23 +308,72 @@
               </div>
             </div>
 
-            <!-- Whimsical Clickable Grade Filter Stickers -->
-            <div class="grade-stickers-row" aria-label="Filter by grade">
-              <button class="grade-sticker-pill active" data-grade="all">
-                <span class="sticker-icon">⭐</span> All Grades
-              </button>
-              <button class="grade-sticker-pill" data-grade="pre-k">
-                <span class="sticker-icon">🍼</span> Pre-K
-              </button>
-              <button class="grade-sticker-pill" data-grade="k">
-                <span class="sticker-icon">🎈</span> Kindergarten
-              </button>
-              <button class="grade-sticker-pill" data-grade="1st">
-                <span class="sticker-icon">🎒</span> 1st Grade
-              </button>
-              <button class="grade-sticker-pill" data-grade="2nd">
-                <span class="sticker-icon">✏️</span> 2nd Grade
-              </button>
+            <!-- Filter Controls Matrix -->
+            <div class="filters-matrix-wrapper">
+              
+              <!-- 1. Resource Type Filters -->
+              <div class="filter-group-row">
+                <span class="filter-group-label">Resource Type:</span>
+                <div class="filter-pills-wrap" aria-label="Filter by resource type">
+                  <button class="type-sticker-pill active" data-type="all">
+                    <span class="sticker-icon">⭐</span> All Types
+                  </button>
+                  <button class="type-sticker-pill" data-type="Workbook">
+                    <span class="sticker-icon">📚</span> Workbooks
+                  </button>
+                  <button class="type-sticker-pill" data-type="Assessment">
+                    <span class="sticker-icon">📝</span> Assessments & Memos
+                  </button>
+                  <button class="type-sticker-pill" data-type="Lesson Plan">
+                    <span class="sticker-icon">📋</span> Lesson Plans
+                  </button>
+                  <button class="type-sticker-pill" data-type="Teaching Guide">
+                    <span class="sticker-icon">📖</span> Teaching Guides
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Curriculum & ATP Filters -->
+              <div class="filter-group-row">
+                <span class="filter-group-label">Curriculum:</span>
+                <div class="filter-pills-wrap" aria-label="Filter by curriculum">
+                  <button class="curriculum-sticker-pill active" data-curriculum="all">
+                    <span class="sticker-icon">🌐</span> All Curriculums
+                  </button>
+                  <button class="curriculum-sticker-pill" data-curriculum="atp">
+                    <span class="sticker-icon">🇿🇦</span> CAPS (ATP-Aligned)
+                  </button>
+                  <button class="curriculum-sticker-pill" data-curriculum="Cambridge">
+                    <span class="sticker-icon">🦁</span> Cambridge Primary
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. Grade Level Stickers -->
+              <div class="filter-group-row">
+                <span class="filter-group-label">Grade Level:</span>
+                <div class="grade-stickers-row" aria-label="Filter by grade">
+                  <button class="grade-sticker-pill active" data-grade="all">
+                    <span class="sticker-icon">⭐</span> All Grades
+                  </button>
+                  <button class="grade-sticker-pill" data-grade="pre-k">
+                    <span class="sticker-icon">🍼</span> Pre-K / Grade R
+                  </button>
+                  <button class="grade-sticker-pill" data-grade="k">
+                    <span class="sticker-icon">🎈</span> Kindergarten
+                  </button>
+                  <button class="grade-sticker-pill" data-grade="1st">
+                    <span class="sticker-icon">🎒</span> 1st Grade
+                  </button>
+                  <button class="grade-sticker-pill" data-grade="2nd">
+                    <span class="sticker-icon">✏️</span> 2nd Grade
+                  </button>
+                  <button class="grade-sticker-pill" data-grade="3rd">
+                    <span class="sticker-icon">🔢</span> 3rd Grade
+                  </button>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -327,8 +388,8 @@
           
           <div class="section-header-centered">
             <div class="header-sparkle-decor">✨ ★ ✨</div>
-            <h2 class="section-title">Shop by Grade</h2>
-            <p class="section-subtitle">Click <strong>"Live Preview"</strong> to flip through real pages, or <strong>"Add"</strong> to watch it fly to your basket!</p>
+            <h2 class="section-title">Educational Resources & Curriculum Library</h2>
+            <p class="section-subtitle">Workbooks, assessments, lesson plans and teaching guides for schools & parents. Click <strong>"Live Preview"</strong> to flip pages, or <strong>"Customize"</strong> for school branding!</p>
           </div>
 
           <!-- Dynamic Interactive Carousel Mount -->
@@ -336,6 +397,110 @@
             <!-- Populated by ResourceCarousel JS -->
           </div>
 
+        </div>
+      </section>
+
+
+      <!-- BESPOKE CURRICULUM CUSTOMIZATION SECTION FOR SCHOOLS & PARENTS -->
+      <section class="custom-orders-section" id="custom-orders">
+        <div class="section-container">
+          <div class="custom-orders-card">
+            
+            <div class="custom-banner-left">
+              <div class="custom-badge-row">
+                <span class="custom-badge-pill">🎨 Bespoke Curriculum Services</span>
+                <span class="custom-curriculum-pill">🇿🇦 Aligned to Your School's ATP Pacing</span>
+              </div>
+
+              <h2 class="custom-section-title">Need Tailored Resources for Your School or Learners?</h2>
+              
+              <p class="custom-section-desc">
+                Beyond our standard printables catalog, we specialize in bespoke authoring for schools, teachers, and homeschooling parents. 
+                Whether you need workbooks adapted to your school's unique term calendar, custom continuous assessments with memoranda, or differentiated remedial guides, we craft them to exact specifications.
+              </p>
+
+              <!-- Customization Features Pillars Grid -->
+              <div class="custom-pillars-grid">
+                <div class="cp-item">
+                  <div class="cp-icon">🏫</div>
+                  <div class="cp-text">
+                    <strong>For Schools & Teachers</strong>
+                    <p>School branding & crests, custom FAT mark weightings, rearranged ATP weeks, and formal teacher moderation files.</p>
+                  </div>
+                </div>
+
+                <div class="cp-item">
+                  <div class="cp-icon">🏡</div>
+                  <div class="cp-text">
+                    <strong>For Parents & Homeschoolers</strong>
+                    <p>Individualized multi-sensory reading pathways, dyslexia-friendly fonts, and pacing adapted for your child.</p>
+                  </div>
+                </div>
+
+                <div class="cp-item">
+                  <div class="cp-icon">⏱️</div>
+                  <div class="cp-text">
+                    <strong>Dedicated Fulfillment Window</strong>
+                    <p>Meticulously handcrafted to order: standard turnaround is <strong>5 to 7 business days</strong> (priority 2–3 days available).</p>
+                  </div>
+                </div>
+
+                <div class="cp-item">
+                  <div class="cp-icon">💰</div>
+                  <div class="cp-text">
+                    <strong>Transparent Custom Pricing</strong>
+                    <p>Bespoke authoring starts from <strong>R190–R350+</strong> based on resource type, page volume, and curriculum depth.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action button -->
+              <div class="custom-cta-row">
+                <button class="bubble-pill-btn btn-mint big-custom-cta open-custom-order-trigger" id="customSectionCtaBtn">
+                  <span>✨ Request Custom Resource & Calculate Quote</span>
+                  <span class="cta-arrow">➜</span>
+                </button>
+                <span class="custom-cta-hint">Free consultation • Direct WhatsApp / Email confirmation with Roxy</span>
+              </div>
+            </div>
+
+            <!-- Visual Graphic / Blueprint Card -->
+            <div class="custom-banner-right">
+              <div class="custom-blueprint-card">
+                <div class="bp-badge">✨ Custom Authoring Studio</div>
+                <h4>How School Customization Works:</h4>
+                <div class="bp-steps-list">
+                  <div class="bp-step">
+                    <span class="step-num">1</span>
+                    <div class="step-info">
+                      <strong>Define Your ATP Scope</strong>
+                      <span>Select subject, grade, and specific term week targets.</span>
+                    </div>
+                  </div>
+                  <div class="bp-step">
+                    <span class="step-num">2</span>
+                    <div class="step-info">
+                      <strong>Quote & Timeframe Lock</strong>
+                      <span>Receive estimated investment and 3–7 day delivery confirmation.</span>
+                    </div>
+                  </div>
+                  <div class="bp-step">
+                    <span class="step-num">3</span>
+                    <div class="step-info">
+                      <strong>High-Res Proof & Delivery</strong>
+                      <span>Classroom-ready PDF worksheets, assessments & full memos delivered.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bp-quote-banner">
+                  <span class="bp-quote-icon">💡</span>
+                  <span>"Custom assessments saved our foundation phase department over 40 hours of prep before Term 1 moderation!"</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
