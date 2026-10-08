@@ -53,6 +53,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -68,6 +70,7 @@ body {
   min-height: 100vh;
   cursor: default;
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body.default-cursor {
@@ -6809,6 +6812,611 @@ body.default-cursor {
   75% { transform: scale(1.08, 0.94); }
   100% { transform: scale(1, 1); }
 }
+
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Architecture
+   ========================================================================== */
+
+/* 1. Tablet & Medium Screens (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding: 12px 20px;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    order: 1;
+  }
+
+  .nav-right-actions {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .nav-bubble-pills {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 2px 8px 2px;
+    gap: 8px;
+  }
+
+  .nav-bubble-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-pill {
+    flex-shrink: 0;
+  }
+}
+
+/* 2. Small Tablet & Mobile Landscape (max-width: 900px) */
+@media (max-width: 900px) {
+  .hero-section {
+    padding: 30px 18px 44px 18px;
+  }
+
+  .hero-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    text-align: center;
+  }
+
+  .mascot-col {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .mascot-speech-bubble {
+    font-size: 13.5px;
+    padding: 10px 14px;
+    top: -20px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .hero-cta-col {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .hero-tagline-badge {
+    font-size: 12.5px;
+    padding: 5px 12px;
+    margin: 0 auto 14px auto;
+  }
+
+  .hero-title {
+    font-size: 34px;
+    margin-bottom: 14px;
+  }
+
+  .hero-desc {
+    font-size: 15.5px;
+    max-width: 100%;
+    margin: 0 auto 20px auto;
+  }
+
+  .hero-pillars-strip {
+    justify-content: center;
+    margin: 14px 0 20px 0;
+  }
+
+  .hero-btn-group {
+    justify-content: center;
+  }
+
+  .hero-perks-row {
+    justify-content: center;
+    gap: 14px;
+  }
+
+  /* Reposition and scale down doodles on tablets & phones */
+  .doodle-sun {
+    top: 10px;
+    left: 10px;
+    transform: scale(0.65);
+    transform-origin: top left;
+  }
+
+  .doodle-cloud {
+    top: 10px;
+    right: 10px;
+    transform: scale(0.65);
+    transform-origin: top right;
+  }
+
+  .doodle-books-stack {
+    bottom: 10px;
+    left: 10px;
+    transform: scale(0.7);
+    transform-origin: bottom left;
+  }
+
+  .doodle-pencil-fly {
+    bottom: 10px;
+    right: 10px;
+    transform: scale(0.7);
+    transform-origin: bottom right;
+  }
+
+  /* Floating Magic Settings Bar repositioned to bottom corner */
+  .floating-magic-bar {
+    top: auto;
+    bottom: 16px;
+    right: 14px;
+    gap: 6px;
+    background: rgba(255, 245, 247, 0.92);
+    padding: 6px 8px;
+    border-radius: var(--radius-bubble);
+    border: var(--border-thin);
+    box-shadow: 0 4px 14px rgba(61, 44, 46, 0.22);
+    backdrop-filter: blur(8px);
+    z-index: 500;
+  }
+
+  .mini-bubble-toggle {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* 3. Mobile Devices & Small Screens (max-width: 680px) */
+@media (max-width: 680px) {
+  .site-outer-frame {
+    margin: 6px 6px 20px 6px;
+    border-radius: 20px;
+    box-shadow: 0 6px 0 var(--ink-border);
+    border-width: 2.8px;
+  }
+
+  .site-header {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .brand-text {
+    font-size: 24px;
+  }
+
+  .brand-doodles svg {
+    transform: scale(0.85);
+  }
+
+  .nav-right-actions {
+    gap: 6px;
+  }
+
+  .nav-user-auth-btn {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .nav-cart-basket-btn {
+    padding: 7px 12px;
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .nav-pill {
+    font-size: 13px;
+    padding: 7px 14px;
+    gap: 4px;
+  }
+
+  /* Hero Adjustments on Mobile */
+  .hero-section {
+    padding: 24px 12px 36px 12px;
+  }
+
+  .hero-title {
+    font-size: 26px;
+    line-height: 1.24;
+  }
+
+  .hero-desc {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .mascot-col {
+    max-width: 240px;
+  }
+
+  .hero-btn-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .big-bubble-cta,
+  .secondary-bubble-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 18px;
+    font-size: 16px;
+  }
+
+  .pillar-chip {
+    padding: 4px 10px;
+    font-size: 11.5px;
+  }
+
+  .perk-item {
+    font-size: 12.5px;
+  }
+
+  /* Section Containers */
+  .section-container {
+    padding: 28px 14px;
+  }
+
+  .section-title {
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Filt-o-Magic Mobile Matrix */
+  .filt-o-magic-section .section-container {
+    padding: 24px 12px;
+  }
+
+  .search-bar-wrap {
+    width: 100%;
+  }
+
+  .resource-search-input {
+    font-size: 14px;
+    padding: 11px 14px 11px 40px;
+  }
+
+  .filter-group-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .filter-group-label {
+    min-width: auto;
+    font-size: 12px;
+  }
+
+  .filter-pills-wrap,
+  .grade-stickers-row {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 6px;
+    gap: 6px;
+  }
+
+  .filter-pills-wrap::-webkit-scrollbar,
+  .grade-stickers-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .type-sticker-pill,
+  .curriculum-sticker-pill,
+  .grade-sticker-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Carousel Mobile Layout */
+  .resources-carousel-section .section-container {
+    padding: 24px 10px;
+  }
+
+  .carousel-wrapper {
+    gap: 6px;
+  }
+
+  .carousel-nav-btn {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  .carousel-viewport {
+    padding: 6px 0 14px 0;
+  }
+
+  .resource-card {
+    flex: 0 0 100%;
+    min-width: 100%;
+    padding: 16px 12px;
+    box-sizing: border-box;
+  }
+
+  .card-top-bar {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .card-badges-group {
+    gap: 4px;
+  }
+
+  .card-type-badge,
+  .card-curriculum-badge,
+  .card-grade-badge,
+  .card-atp-badge,
+  .card-locked-badge {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
+
+  .card-title {
+    font-size: 17px;
+  }
+
+  .card-meta-tags-row {
+    gap: 4px;
+    margin: 6px 0 8px 0;
+  }
+
+  .meta-pill {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
+
+  .card-atp-reference-pill {
+    font-size: 10.5px;
+    padding: 4px 8px;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .preview-flip-btn,
+  .buy-now-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 13.5px;
+  }
+
+  /* Custom Orders Card Mobile */
+  .custom-orders-section {
+    padding: 24px 0;
+  }
+
+  .custom-orders-card {
+    padding: 20px 14px;
+    border-radius: 18px;
+  }
+
+  .custom-section-title {
+    font-size: 22px;
+  }
+
+  .custom-section-desc {
+    font-size: 13.5px;
+  }
+
+  .custom-pillars-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .big-custom-cta {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+    padding: 12px 18px;
+  }
+
+  .custom-blueprint-card {
+    padding: 16px 12px;
+    border-radius: 16px;
+  }
+
+  /* Fun Zone Mobile Games */
+  .funzone-section .section-container {
+    padding: 24px 12px;
+  }
+
+  .fun-tab-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .fun-tab-btn {
+    padding: 8px 14px;
+    font-size: 13.5px;
+  }
+
+  .wheel-game-grid {
+    padding: 20px 12px;
+    border-radius: 18px;
+    gap: 20px;
+  }
+
+  .prize-wheel-canvas {
+    width: 100%;
+    max-width: 270px;
+    height: auto;
+    aspect-ratio: 1/1;
+  }
+
+  .big-spin-btn {
+    width: 100%;
+    max-width: 100%;
+    font-size: 17px;
+    padding: 13px 18px;
+  }
+
+  .bundle-game-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .shelf-container-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Bestseller Shelf Mobile */
+  .bestsellers-shelf-section .section-container {
+    padding: 24px 12px;
+  }
+
+  .bestseller-highlight-card {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  /* About Us Mobile */
+  .about-us-section .section-container {
+    padding: 24px 12px;
+  }
+
+  .about-story-card h2 {
+    font-size: 24px;
+  }
+
+  .about-story-card p {
+    font-size: 14px;
+  }
+
+  .about-stats-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .stat-bubble {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 120px;
+    padding: 10px 12px;
+  }
+
+  .stat-num {
+    font-size: 20px;
+  }
+
+  /* Footer Mobile */
+  .footer-container {
+    padding: 26px 14px 18px 14px;
+  }
+
+  .footer-top-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .footer-brand-title {
+    font-size: 24px;
+  }
+
+  .footer-brand p {
+    font-size: 13.5px;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .newsletter-form input,
+  .newsletter-form button {
+    width: 100%;
+  }
+
+  .footer-bottom-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  /* Modals Mobile Sizing */
+  .flipbook-modal-backdrop,
+  .cart-drawer-backdrop,
+  .order-modal-backdrop,
+  .admin-modal-backdrop,
+  .auth-modal-backdrop {
+    padding: 8px;
+  }
+
+  .flipbook-window,
+  .order-window,
+  .admin-window,
+  .auth-card {
+    border-radius: 18px;
+    box-shadow: 0 8px 0 var(--ink-border);
+    max-height: 94vh;
+  }
+
+  .flipbook-window-header,
+  .order-window-header,
+  .admin-window-header,
+  .drawer-header {
+    padding: 12px 14px;
+  }
+
+  .flipbook-stage {
+    flex-direction: column;
+    padding: 14px 8px;
+    gap: 10px;
+    min-height: auto;
+  }
+
+  .flipbook-book {
+    grid-template-columns: 1fr;
+  }
+
+  .flip-edge-trigger {
+    padding: 10px 14px;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    border-radius: 14px;
+  }
+
+  .cart-drawer-panel {
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+/* 4. Extra Small Phones (max-width: 480px) */
+@media (max-width: 480px) {
+  .mini-bubble-toggle .btn-text {
+    display: none;
+  }
+
+  .mini-bubble-toggle {
+    padding: 8px;
+    min-width: 36px;
+    height: 36px;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .hero-title {
+    font-size: 23px;
+  }
+
+  .section-title {
+    font-size: 23px;
+  }
+}
+
 
 
 
