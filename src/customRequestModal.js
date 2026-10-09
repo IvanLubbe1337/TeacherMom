@@ -1,4 +1,4 @@
-// Custom Curriculum & Resource Request Modal for Schools and Parents
+// Custom Curriculum & Resource Request Modal for Schools, Educators and Home Schooling Centres
 // Handles bespoke orders (workbooks, assessments, lesson plans, teaching guides)
 // with dynamic cost and fulfillment turnaround estimates.
 import { sounds } from './audio.js';
@@ -33,7 +33,7 @@ export class CustomRequestModal {
             <span class="custom-sparkle-icon">✨</span>
             <div>
               <h3>Bespoke Curriculum Customization</h3>
-              <p>Tailored educational resources for schools, educators and parents</p>
+              <p>Tailored educational resources for schools, educators and home schooling centres</p>
             </div>
           </div>
           <button class="custom-close-btn" id="closeCustomModalBtn" aria-label="Close modal">✕</button>
@@ -65,7 +65,7 @@ export class CustomRequestModal {
                   🏫 School / Educator
                 </button>
                 <button type="button" class="segment-pill" data-type="parent">
-                  🏡 Parent / Homeschooler
+                  🏡 Educator / Home Schooling Centre
                 </button>
               </div>
             </div>
@@ -237,7 +237,7 @@ export class CustomRequestModal {
       if (e.target === this.modalEl) this.close();
     });
 
-    // Segment pills (School vs Parent)
+    // Segment pills (School vs Educator / Home Schooling Centre)
     const pills = this.modalEl.querySelectorAll('.segment-pill');
     pills.forEach(pill => {
       pill.addEventListener('click', () => {
@@ -418,9 +418,9 @@ export class CustomRequestModal {
       `🌟 *TEACHERMOM BESPOKE RESOURCE REQUEST* 🌟`,
       `*Custom Inquiry Ref:* ${data.refCode}`,
       `--------------------------------`,
-      `*Requester Category:* ${data.segment === 'school' ? '🏫 School / Educator' : '🏡 Parent / Homeschooler'}`,
+      `*Requester Category:* ${data.segment === 'school' ? '🏫 School / Educator' : '🏡 Educator / Home Schooling Centre'}`,
       `*Name:* ${data.name}`,
-      `*School / Family:* ${data.school}`,
+      `*School / Centre / Educator:* ${data.school}`,
       `*WhatsApp:* ${data.phone}`,
       `*Email:* ${data.email}`,
       `--------------------------------`,
@@ -449,7 +449,7 @@ export class CustomRequestModal {
     resourceStore.addCustomRequest({
       refNumber: data.refCode,
       name: data.name,
-      role: data.segment === 'school' ? 'School Educator / Administrator' : 'Homeschooling Parent',
+      role: data.segment === 'school' ? 'School Educator / Administrator' : 'Educator & Home Schooling Lead',
       school: data.school,
       email: data.email,
       phone: data.phone,

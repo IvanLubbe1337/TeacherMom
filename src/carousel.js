@@ -272,7 +272,7 @@ export class ResourceCarousel {
           <div class="card-meta-tags-row">
             <span class="meta-pill subject-pill">📚 ${item.subject || 'All Subjects'}</span>
             <span class="meta-pill term-pill">📅 ${item.term || 'Term 1'} (${item.year || '2026'})</span>
-            <span class="meta-pill audience-pill">👥 ${item.audience || 'Schools & Parents'}</span>
+            <span class="meta-pill audience-pill">👥 ${item.audience || 'Schools, Educators & Home Schooling Centres'}</span>
           </div>
 
           ${item.atpReference ? `
@@ -295,7 +295,7 @@ export class ResourceCarousel {
               <span class="card-price">${priceFormatted}</span>
               <span class="price-sub">EFT / WhatsApp</span>
             </div>
-            <button class="card-customize-trigger-link" data-id="${item.id}" title="Request custom school/parent adaptation (turnaround 3–7 days)">
+            <button class="card-customize-trigger-link" data-id="${item.id}" title="Request custom school/educator adaptation (turnaround 3–7 days)">
               <span>🎨 Customize</span>
             </button>
           </div>
@@ -434,7 +434,7 @@ export class ResourceCarousel {
       });
     });
 
-    // Customize for School / Parent button
+    // Customize for School / Educator / Home Schooling Centre button
     const customBtns = this.container.querySelectorAll('.card-customize-trigger-link');
     customBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {

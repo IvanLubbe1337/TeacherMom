@@ -67,12 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
     onMascotCheer: triggerMascotCheer
   });
 
-  // 5. Initialize Bespoke Custom Curriculum Request Modal (for Schools & Parents)
+  // 5. Initialize Bespoke Custom Curriculum Request Modal (for Schools, Educators & Home Schooling Centres)
   const customModal = new CustomRequestModal({
     onMascotCheer: triggerMascotCheer
   });
 
-  // 6. Initialize Teacher & Parent Authentication Modal (Google & Custom Registration)
+  // 6. Initialize Teacher & Educator Authentication Modal (Google & Custom Registration)
   const authModal = new AuthModal({
     onMascotCheer: triggerMascotCheer
   });
@@ -392,6 +392,54 @@ document.addEventListener('DOMContentLoaded', () => {
   if (exploreBtn) {
     exploreBtn.addEventListener('click', () => {
       sounds.pop(680);
+    });
+  }
+
+  // Mobile Navigation Hamburger Toggle
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const navBubblePills = document.getElementById('navBubblePills');
+  const siteHeader = document.querySelector('.site-header');
+
+  if (mobileMenuBtn && navBubblePills && siteHeader) {
+    const toggleMobileMenu = (forceClose = false) => {
+      const isOpen = forceClose ? false : !siteHeader.classList.contains('mobile-nav-open');
+      if (isOpen) {
+        siteHeader.classList.add('mobile-nav-open');
+        navBubblePills.classList.add('is-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+        sounds.pop(620);
+      } else {
+        siteHeader.classList.remove('mobile-nav-open');
+        navBubblePills.classList.remove('is-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        if (!forceClose) sounds.pop(420);
+      }
+    };
+
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMobileMenu();
+    });
+
+    // Close when clicking any nav link
+    navBubblePills.querySelectorAll('.nav-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        toggleMobileMenu(true);
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (siteHeader.classList.contains('mobile-nav-open') && !siteHeader.contains(e.target)) {
+        toggleMobileMenu(true);
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && siteHeader.classList.contains('mobile-nav-open')) {
+        toggleMobileMenu(true);
+      }
     });
   }
 

@@ -57,7 +57,7 @@ export class OrderModal {
               <div class="meta-tag"><strong>Grade:</strong> <span id="orderMetaGrade">Grade 1</span></div>
               <div class="meta-tag"><strong>Subject:</strong> <span id="orderMetaSubject">Mathematics</span></div>
               <div class="meta-tag"><strong>Term:</strong> <span id="orderMetaTerm">Term 1</span></div>
-              <div class="meta-tag"><strong>Audience:</strong> <span id="orderMetaAudience">Schools & Parents</span></div>
+              <div class="meta-tag"><strong>Audience:</strong> <span id="orderMetaAudience">Schools, Educators & Home Schooling Centres</span></div>
               <div class="meta-tag locked-tag">🔒 Status: <span>Locked PDF</span></div>
             </div>
           </div>
@@ -187,7 +187,7 @@ export class OrderModal {
     this.modalEl.querySelector('#orderMetaGrade').textContent = resource.grade || 'Grade 1';
     this.modalEl.querySelector('#orderMetaSubject').textContent = resource.subject || 'All Subjects';
     this.modalEl.querySelector('#orderMetaTerm').textContent = resource.term || 'Term 1';
-    this.modalEl.querySelector('#orderMetaAudience').textContent = resource.audience || 'Schools & Parents';
+    this.modalEl.querySelector('#orderMetaAudience').textContent = resource.audience || 'Schools, Educators & Home Schooling Centres';
 
     this.modalEl.classList.add('active');
   }
@@ -226,7 +226,7 @@ export class OrderModal {
       `*Grade:* ${resource.grade || 'General'}`,
       `*Subject:* ${resource.subject || 'General'}`,
       `*Term & Year:* ${resource.term || 'Term 1'} (${resource.year || '2026'})`,
-      `*Target Audience:* ${resource.audience || 'Schools & Parents'}`,
+      `*Target Audience:* ${resource.audience || 'Schools, Educators & Home Schooling Centres'}`,
       `*Total Amount Due:* ${currency}${totalPrice.toFixed(2)}`,
       `*Status:* 🔒 Locked Digital Download`,
       `--------------------------------`,

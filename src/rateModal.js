@@ -22,7 +22,7 @@ export class RateModal {
         <div class="rate-window-header">
           <div class="rate-header-badge">
             <span class="badge-icon">⭐</span>
-            <h3>Teacher & Parent Review</h3>
+            <h3>Teacher & Educator Review</h3>
           </div>
           <button class="rate-close-btn" id="closeRateModalBtn" aria-label="Close review modal">✕</button>
         </div>

@@ -19,7 +19,7 @@ export const INITIAL_RESOURCES = [
     title: 'Grade 1 Phonics & Handwriting Workbook 🎒',
     subtitle: 'Sound Families, CVC Blends & Letter Paths',
     resourceType: 'Workbook',
-    audience: 'Schools & Parents',
+    audience: 'Schools, Educators & Home Schooling Centres',
     subject: 'English (HL)',
     grade: 'Grade 1',
     gradeTag: '1st',
@@ -101,7 +101,7 @@ export const INITIAL_RESOURCES = [
     title: 'Foundation Phase Comprehensive Teaching Guide 📖',
     subtitle: 'Pedagogy Facilitation, Remedial Strategies & ATP Pacing',
     resourceType: 'Teaching Guide',
-    audience: 'Schools & Parents',
+    audience: 'Schools, Educators & Home Schooling Centres',
     subject: 'Methodology & Literacy',
     grade: 'Grade R - 3',
     gradeTag: 'all',
@@ -119,7 +119,7 @@ export const INITIAL_RESOURCES = [
     badgeColor: '#FBC02D',
     tag: 'Master Guide 📚',
     faceType: 'happy-eyes',
-    description: 'Step-by-step facilitation guide for teachers and parents: teaching tricky phonics blends, concrete-to-abstract math transitions, and mastering ATP deadlines.',
+    description: 'Step-by-step facilitation guide for teachers and educators: teaching tricky phonics blends, concrete-to-abstract math transitions, and mastering ATP deadlines.',
     sampleImages: []
   },
   {
@@ -127,7 +127,7 @@ export const INITIAL_RESOURCES = [
     title: 'Grade 1 Math Mania Workbook ✏️',
     subtitle: 'Numbers, Operations & Relationships',
     resourceType: 'Workbook',
-    audience: 'Schools & Parents',
+    audience: 'Schools, Educators & Home Schooling Centres',
     subject: 'Mathematics',
     grade: 'Grade 1',
     gradeTag: '1st',
@@ -179,9 +179,9 @@ export const INITIAL_RESOURCES = [
   {
     id: 'cambridge-early-reading-guide',
     title: 'Cambridge Early Reader Facilitation Guide 🦁',
-    subtitle: 'Guided Reading Stages & Parent Prompts',
+    subtitle: 'Guided Reading Stages & Educator Prompts',
     resourceType: 'Teaching Guide',
-    audience: 'Schools & Parents',
+    audience: 'Schools, Educators & Home Schooling Centres',
     subject: 'Reading & Literacy',
     grade: 'Grade 1',
     gradeTag: '1st',
@@ -207,7 +207,7 @@ export const INITIAL_RESOURCES = [
     title: 'Grade R Early Learning Readiness Workbook 🍼',
     subtitle: 'Fine Motor & Visual Perception',
     resourceType: 'Workbook',
-    audience: 'Schools & Parents',
+    audience: 'Schools, Educators & Home Schooling Centres',
     subject: 'Life Skills',
     grade: 'Grade R',
     gradeTag: 'pre-k',
@@ -279,8 +279,8 @@ export const INITIAL_CUSTOM_REQUESTS = [
     id: 'req-cust-02',
     refNumber: 'TM-CUST-2026-1088',
     name: 'David & Lisa Coetzee',
-    role: 'Homeschooling Parents',
-    school: 'Independent Homeschool',
+    role: 'Educator & Home Schooling Lead',
+    school: 'Home Schooling Centre',
     email: 'david.coetzee@homeed.co.za',
     phone: '082 987 6543',
     curriculum: 'CAPS & Cambridge Blend',
@@ -325,7 +325,7 @@ export const INITIAL_REVIEWS = [
     resourceId: 'caps-grr-lifeskills-t1',
     resourceTitle: 'Grade R Early Learning Bundle 🍼',
     author: 'Chantelle van der Merwe',
-    role: 'Homeschooling Mom, Pretoria',
+    role: 'Home Schooling Centre Educator, Pretoria',
     avatar: '💖',
     rating: 5,
     text: "Tactile, engaging, and no tears at the work table. The sample preview gave me total confidence before purchasing via WhatsApp. Quick delivery and lovely support!",
@@ -387,7 +387,7 @@ export const INITIAL_MAILING_LIST = [
   {
     email: 'chantelle.vdm@gmail.com',
     name: 'Chantelle van der Merwe',
-    role: 'Homeschooling Mom, Pretoria',
+    role: 'Home Schooling Centre Educator, Pretoria',
     optedIn: true,
     date: '2026-04-02'
   }
@@ -405,7 +405,16 @@ export class ResourceStore {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].resourceType) {
-          return parsed;
+          let updated = false;
+          const sanitized = parsed.map(item => {
+            if (item.audience && item.audience.includes('Parents')) {
+              item.audience = 'Schools, Educators & Home Schooling Centres';
+              updated = true;
+            }
+            return item;
+          });
+          if (updated) this.saveResources(sanitized);
+          return sanitized;
         }
       }
     } catch (e) {
@@ -433,7 +442,7 @@ export class ResourceStore {
       ...newResource,
       id: newResource.id || `res-${Date.now()}`,
       resourceType: newResource.resourceType || 'Workbook',
-      audience: newResource.audience || 'Schools & Parents',
+      audience: newResource.audience || 'Schools, Educators & Home Schooling Centres',
       atpAligned: newResource.atpAligned !== false,
       atpReference: newResource.atpReference || (newResource.atpAligned ? 'CAPS ATP Aligned' : ''),
       locked: true,
@@ -467,7 +476,7 @@ export class ResourceStore {
     this.saveResources(list);
   }
 
-  // --- Custom Resource Requests (for Schools & Parents) ---
+  // --- Custom Resource Requests (for Schools, Educators & Home Schooling Centres) ---
   getCustomRequests() {
     try {
       const stored = localStorage.getItem(CUSTOM_REQUESTS_KEY);
@@ -492,8 +501,8 @@ export class ResourceStore {
       id: data.id || `req-cust-${Date.now()}`,
       refNumber: data.refNumber || `TM-CUST-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
       name: data.name || 'Anonymous Educator',
-      role: data.role || 'School Teacher / Parent',
-      school: data.school || 'Independent School / Home',
+      role: data.role || 'Educator / Home Schooling Centre',
+      school: data.school || 'Independent School / Home Schooling Centre',
       email: data.email || '',
       phone: data.phone || '',
       curriculum: data.curriculum || 'CAPS',
@@ -551,7 +560,7 @@ export class ResourceStore {
         resourceTitle: target.title,
         rating: newRatingStars,
         author: optionalReview.author || currentUser?.name || 'Verified Educator',
-        role: optionalReview.role || currentUser?.role || 'Teacher / Parent',
+        role: optionalReview.role || currentUser?.role || 'Educator / Home Schooling Centre',
         userId: currentUser?.id || '',
         userEmail: currentUser?.email || '',
         provider: currentUser?.provider || 'custom',
@@ -820,7 +829,7 @@ export class ResourceStore {
       name: name.trim(),
       email: cleanEmail,
       password: password,
-      role: role ? `${role}${city ? ', ' + city : ''}` : (city || 'Educator / Parent'),
+      role: role ? `${role}${city ? ', ' + city : ''}` : (city || 'Educator / Home Schooling Centre'),
       avatar: '👩‍🏫',
       provider: 'custom',
       mailingList: !!mailingList,
@@ -897,7 +906,7 @@ export class ResourceStore {
       list.push({
         email: cleanEmail,
         name: extra.name || 'TeacherMom VIP',
-        role: extra.role || 'Educator / Parent',
+        role: extra.role || 'Educator / Home Schooling Centre',
         optedIn: !!optedIn,
         date: new Date().toISOString().split('T')[0]
       });

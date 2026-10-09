@@ -1,4 +1,4 @@
-// Teacher & Parent Authentication Modal (Google & Custom Registration)
+// Teacher & Educator Authentication Modal (Google & Custom Registration)
 // With VIP Mailing List Opt-In / Opt-Out management
 import { sounds } from './audio.js';
 import { resourceStore } from './resourceStore.js';
@@ -24,7 +24,7 @@ export class AuthModal {
           <div class="auth-header-title">
             <span class="auth-icon-badge">🌸</span>
             <div>
-              <h3>Teacher & Parent Access</h3>
+              <h3>Teacher & Educator Access</h3>
               <p class="auth-header-sub" id="authHeaderSub">Sign in to leave verified reviews & unlock educator perks</p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export class AuthModal {
           <div class="profile-meta">
             <h4>${user.name}</h4>
             <span class="profile-email">${user.email}</span>
-            <span class="profile-role">🏫 ${user.role || 'Educator / Parent'}</span>
+            <span class="profile-role">🏫 ${user.role || 'Educator / Home Schooling Centre'}</span>
             <span class="verified-provider-badge">
               ✓ Verified via ${user.provider === 'google' ? 'Google' : 'TeacherMom Member'}
             </span>

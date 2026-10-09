@@ -287,9 +287,9 @@ export class AdminController {
               <div class="form-field">
                 <label>Audience: *</label>
                 <select id="resAudience" required>
-                  <option value="Schools & Parents" selected>Schools & Parents</option>
-                  <option value="Schools & Teachers">Schools & Teachers</option>
-                  <option value="Parents & Homeschoolers">Parents & Homeschoolers</option>
+                  <option value="Schools, Educators & Home Schooling Centres" selected>Schools, Educators & Home Schooling Centres</option>
+                  <option value="Schools & Educators">Schools & Educators</option>
+                  <option value="Educators & Home Schooling Centres">Educators & Home Schooling Centres</option>
                 </select>
               </div>
               <div class="form-field">
@@ -400,11 +400,11 @@ export class AdminController {
           <div class="admin-catalog-list" id="adminCatalogList"></div>
         </div>
 
-        <!-- Tab 3: Custom School & Parent Orders -->
+        <!-- Tab 3: Custom School, Educator & Home Schooling Centre Orders -->
         <div class="admin-tab-content" id="customTab">
           <div class="admin-custom-header">
             <h4>Bespoke Curriculum Customization Inquiries</h4>
-            <p>School and parent requests with calculated turnaround times, pricing, and custom ATP specifications.</p>
+            <p>School, educator, and home schooling centre requests with calculated turnaround times, pricing, and custom ATP specifications.</p>
           </div>
           <div class="admin-custom-requests-list" id="adminCustomRequestsList"></div>
         </div>
@@ -752,7 +752,7 @@ export class AdminController {
 
         <div class="sample-manager-body">
           <div class="sample-mgr-info-banner">
-            <span>ℹ️ These sample pages are displayed in the <strong>Live Flipbook</strong> and card previews so prospective schools and parents can inspect real worksheet quality before buying.</span>
+            <span>ℹ️ These sample pages are displayed in the <strong>Live Flipbook</strong> and card previews so prospective schools, educators and home schooling centres can inspect real worksheet quality before buying.</span>
           </div>
 
           <!-- Add New Samples Control Bar -->
@@ -903,7 +903,7 @@ export class AdminController {
     if (requests.length === 0) {
       listContainer.innerHTML = `
         <div class="empty-admin-list">
-          <p>No custom inquiries yet. Requests from schools and parents will appear here automatically!</p>
+          <p>No custom inquiries yet. Requests from schools, educators and home schooling centres will appear here automatically!</p>
         </div>
       `;
       return;
@@ -1116,7 +1116,7 @@ export class AdminController {
         directoryMap.set(key, {
           name: m.name || 'Newsletter Subscriber',
           email: m.email,
-          role: m.role || 'Educator / Parent',
+          role: m.role || 'Educator / Home Schooling Centre',
           provider: 'newsletter',
           optedIn: m.optedIn === true,
           date: m.date || '2026-04-01'
