@@ -12,9 +12,24 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 2. Discover Database Credentials (Prioritize Supabase 100% Free Tier)
-  const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  // 2. Discover Database Credentials (Vercel Supabase Integration automatically injects these)
+  const supabaseUrl = (
+    process.env.SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.VITE_SUPABASE_URL ||
+    process.env.REACT_APP_SUPABASE_URL ||
+    (process.env.POSTGRES_HOST && process.env.POSTGRES_HOST.includes('supabase.co')
+      ? `https://${process.env.POSTGRES_HOST.split('.')[1]}.supabase.co`
+      : '') ||
+    ''
+  ).replace(/\/$/, '');
+
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.REACT_APP_SUPABASE_ANON_KEY;
 
   const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -28,12 +43,12 @@ export default async function handler(req, res) {
         connected: false,
         provider: 'none',
         resources: [],
-        message: 'Supabase environment variables (SUPABASE_URL, SUPABASE_ANON_KEY) not found in Vercel.'
+        message: 'Supabase credentials not found in Vercel environment.'
       });
     }
     return res.status(503).json({
       connected: false,
-      error: 'Supabase not connected. Please add SUPABASE_URL and SUPABASE_ANON_KEY to your Vercel Project Settings.'
+      error: 'Supabase credentials not detected. Ensure your Vercel project is linked to your Supabase integration.'
     });
   }
 
@@ -46,6 +61,41 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${supabaseKey}`,
       'Content-Type': 'application/json'
     };
+
+    // Helper: Upsert row to Supabase, auto-adapting to JSON data column or flat columns
+    async function upsertRows(items) {
+      const rowsWithData = items.map(r => ({ id: r.id, title: r.title, data: r }));
+      let response = await fetch(`${supabaseUrl}/rest/v1/resources`, {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify(rowsWithData)
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        // If table doesn't have a "data" column, retry with flat object
+        if (errText.includes('data') && errText.includes('does not exist')) {
+          response = await fetch(`${supabaseUrl}/rest/v1/resources`, {
+            method: 'POST',
+            headers: {
+              ...headers,
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify(items)
+          });
+          if (!response.ok) {
+            const retryErr = await response.text();
+            throw new Error(`Supabase insert failed: ${retryErr}`);
+          }
+        } else {
+          throw new Error(`Supabase insert failed: ${errText}`);
+        }
+      }
+      return response;
+    }
 
     try {
       // GET /api/resources -> Fetch live shared catalog
@@ -60,14 +110,13 @@ export default async function handler(req, res) {
               provider: 'supabase',
               tableMissing: true,
               resources: [],
-              message: 'Table "resources" does not exist in Supabase yet. Run the SQL table setup in Supabase SQL editor.'
+              message: 'Table "resources" does not exist in Supabase yet. Please run the SQL table setup script.'
             });
           }
           throw new Error(`Supabase query error (${response.status}): ${errText}`);
         }
 
         const data = await response.json();
-        // Unpack JSON payload if stored as { id, title, data }
         const resources = (Array.isArray(data) ? data : []).map(row => {
           if (row.data && typeof row.data === 'object') {
             return { ...row.data, id: row.id || row.data.id };
@@ -89,31 +138,12 @@ export default async function handler(req, res) {
 
         // Bulk catalog sync
         if (payload.action === 'set_all' && Array.isArray(payload.resources)) {
-          const rows = payload.resources.map(r => ({
-            id: r.id,
-            title: r.title,
-            data: r
-          }));
-
-          const response = await fetch(`${supabaseUrl}/rest/v1/resources`, {
-            method: 'POST',
-            headers: {
-              ...headers,
-              'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify(rows)
-          });
-
-          if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`Supabase bulk save error (${response.status}): ${errText}`);
-          }
-
+          await upsertRows(payload.resources);
           return res.status(200).json({
             connected: true,
             provider: 'supabase',
             success: true,
-            count: rows.length
+            count: payload.resources.length
           });
         }
 
@@ -123,25 +153,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Resource must contain id and title.' });
         }
 
-        const row = {
-          id: newResource.id,
-          title: newResource.title,
-          data: newResource
-        };
-
-        const response = await fetch(`${supabaseUrl}/rest/v1/resources`, {
-          method: 'POST',
-          headers: {
-            ...headers,
-            'Prefer': 'resolution=merge-duplicates'
-          },
-          body: JSON.stringify([row])
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`Supabase insert error (${response.status}): ${errText}`);
-        }
+        await upsertRows([newResource]);
 
         return res.status(200).json({
           connected: true,
