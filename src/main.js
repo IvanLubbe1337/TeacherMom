@@ -387,6 +387,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNewsletterStatus();
   });
 
+  // 18b. Vercel Cloud Catalog Synchronization
+  resourceStore.syncFromCloud().then((cloudData) => {
+    if (cloudData && cloudData.length > 0) {
+      console.log(`🌸 TeacherMom synchronized ${cloudData.length} live resources from Vercel Cloud Store!`);
+    }
+  });
+
   // 19. Smooth Scroll for Explore Resources Button with Bloop
   const exploreBtn = document.getElementById('exploreResourcesBtn');
   if (exploreBtn) {

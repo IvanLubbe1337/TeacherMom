@@ -4120,6 +4120,70 @@ body.default-cursor {
 }
 
 /* Catalog Tab & Sample Badges */
+.catalog-sync-banner {
+  background: #FFF9E6;
+  border: 2px dashed #F59E0B;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.catalog-sync-banner.cloud-active {
+  background: #E8F5E9;
+  border-color: #2E7D32;
+}
+
+.catalog-sync-banner.cloud-active .sync-banner-info h5 {
+  color: #1B5E20;
+}
+
+.catalog-sync-banner.cloud-active .sync-banner-info p {
+  color: #2E7D32;
+}
+
+.m-stat.m-stat-cloud-on {
+  background: #E8F5E9;
+  color: #1B5E20;
+  border-color: #81C784;
+}
+
+.m-stat.m-stat-cloud-off {
+  background: #FFF3E0;
+  color: #E65100;
+  border-color: #FFB74D;
+}
+
+.sync-banner-info h5 {
+  font-family: var(--font-comic);
+  font-size: 15px;
+  color: #B45309;
+  margin-bottom: 4px;
+}
+
+.sync-banner-info p {
+  font-size: 12px;
+  color: #78350F;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sync-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.import-catalog-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
 .admin-catalog-list {
   display: flex;
   flex-direction: column;

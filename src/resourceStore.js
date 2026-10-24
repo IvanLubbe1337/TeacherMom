@@ -396,6 +396,8 @@ export const INITIAL_MAILING_LIST = [
 export class ResourceStore {
   constructor() {
     this.listeners = [];
+    this.cloudStatus = 'checking'; // 'connected' | 'unconfigured' | 'offline'
+    this.cloudMessage = '';
   }
 
   // --- Resources ---
@@ -436,7 +438,39 @@ export class ResourceStore {
     }
   }
 
-  addResource(newResource) {
+  // --- Cloud Sync API Methods (Supabase / PostgreSQL) ---
+  async syncFromCloud() {
+    try {
+      const res = await fetch('/api/resources');
+      if (!res.ok) {
+        this.cloudStatus = 'offline';
+        return null;
+      }
+      const data = await res.json();
+      if (data.connected === true && Array.isArray(data.resources) && data.resources.length > 0) {
+        this.cloudStatus = 'connected';
+        this.cloudProvider = data.provider || 'supabase';
+        this.cloudMessage = `Connected to ${data.provider === 'supabase' ? 'Supabase' : 'Cloud Database'} (${data.resources.length} live resources)`;
+        this.saveResources(data.resources);
+        return data.resources;
+      } else if (data.connected === true) {
+        this.cloudStatus = 'connected';
+        this.cloudProvider = data.provider || 'supabase';
+        this.cloudMessage = data.message || `Connected to ${data.provider === 'supabase' ? 'Supabase' : 'Cloud Database'} (ready)`;
+        return null;
+      } else {
+        this.cloudStatus = 'unconfigured';
+        this.cloudMessage = data.message || 'Supabase not connected yet.';
+        return null;
+      }
+    } catch (e) {
+      this.cloudStatus = 'offline';
+      this.cloudMessage = 'Operating in offline local cache mode.';
+      return null;
+    }
+  }
+
+  async addResource(newResource) {
     const list = this.getResources();
     const item = {
       ...newResource,
@@ -457,23 +491,90 @@ export class ResourceStore {
     };
     list.unshift(item);
     this.saveResources(list);
-    return item;
+
+    // Persist to Vercel Serverless API
+    let isCloud = false;
+    try {
+      const res = await fetch('/api/resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.connected) {
+          isCloud = true;
+          this.cloudStatus = 'connected';
+        }
+      }
+    } catch (err) {
+      console.warn('Could not post to /api/resources, saved locally:', err);
+    }
+
+    return { item, isCloud };
   }
 
-  updateResource(id, updates) {
+  async updateResource(id, updates) {
     const list = this.getResources();
     const index = list.findIndex(r => r.id === id);
     if (index !== -1) {
       list[index] = { ...list[index], ...updates };
       this.saveResources(list);
+
+      try {
+        await fetch('/api/resources', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(list[index])
+        });
+      } catch (err) {
+        console.warn('Could not update on /api/resources:', err);
+      }
+
       return list[index];
     }
     return null;
   }
 
-  deleteResource(id) {
+  async deleteResource(id) {
     const list = this.getResources().filter(r => r.id !== id);
     this.saveResources(list);
+
+    try {
+      await fetch(`/api/resources?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      console.warn('Could not delete on /api/resources:', err);
+    }
+  }
+
+  async pushAllToCloud() {
+    const resources = this.getResources();
+    try {
+      const res = await fetch('/api/resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set_all', resources })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.connected) {
+          this.cloudStatus = 'connected';
+          return { success: true, count: resources.length };
+        }
+      }
+      return { success: false, error: 'Cloud database not configured in Vercel.' };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  getCloudStatus() {
+    return {
+      status: this.cloudStatus,
+      message: this.cloudMessage
+    };
   }
 
   // --- Custom Resource Requests (for Schools, Educators & Home Schooling Centres) ---

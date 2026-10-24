@@ -218,6 +218,8 @@ export class AdminController {
     const stats = resourceStore.getStats();
     const mailingList = resourceStore.getMailingList();
     const users = resourceStore.getUsers();
+    const cloudStatus = resourceStore.getCloudStatus();
+    const isCloudConnected = cloudStatus.status === 'connected';
     this.sampleImagesBase64 = [];
 
     container.innerHTML = `
@@ -229,6 +231,9 @@ export class AdminController {
             <span>🌸 Logged in: <strong>${AUTHORIZED_ADMIN_EMAIL}</strong></span>
           </div>
           <div class="admin-mini-stats-badges">
+            <span class="m-stat ${isCloudConnected ? 'm-stat-cloud-on' : 'm-stat-cloud-off'}" title="${cloudStatus.message || 'Supabase Cloud Sync Status'}">
+              ${isCloudConnected ? '⚡ Supabase: Live' : '💾 Supabase: Offline/Local'}
+            </span>
             <span class="m-stat" title="Total resources in store">📚 ${stats.resourcesCount} Resources</span>
             <span class="m-stat" title="Estimated happy educators">👩‍🏫 ${stats.happyTeachers} Teachers</span>
             <span class="m-stat" title="Average store rating">⭐ ${stats.averageRating} Rating</span>
@@ -397,6 +402,24 @@ export class AdminController {
 
         <!-- Tab 2: Current Catalog -->
         <div class="admin-tab-content" id="catalogTab">
+          <div class="catalog-sync-banner ${isCloudConnected ? 'cloud-active' : 'cloud-pending'}">
+            <div class="sync-banner-info">
+              <h5>${isCloudConnected ? '⚡ Supabase Cloud Sync: Active' : '🌐 Live Website Sync (Free Supabase)'}</h5>
+              <p>${isCloudConnected 
+                ? 'Your TeacherMom catalog is connected to <strong>Supabase (100% Free PostgreSQL)</strong>. Any resource uploaded or deleted is immediately live and visible to every visitor worldwide in real time!' 
+                : 'To ensure uploaded resources are visible to other users without redeploying, connect <strong>Supabase</strong> in your Vercel Project Settings (Environment Variables). You can also push your current catalog below or copy the code.'}
+              </p>
+            </div>
+            <div class="sync-banner-actions">
+              <button type="button" class="bubble-pill-btn btn-mint btn-sm" id="pushToCloudBtn">⚡ Push Catalog to Supabase</button>
+              <button type="button" class="bubble-pill-btn btn-peach btn-sm" id="copyCatalogCodeBtn">📋 Copy Catalog for Codebase</button>
+              <button type="button" class="bubble-pill-btn btn-outline btn-sm" id="downloadCatalogJsonBtn">📥 Download JSON</button>
+              <label class="bubble-pill-btn btn-outline btn-sm import-catalog-label">
+                📤 Import JSON
+                <input type="file" id="importCatalogInput" accept="application/json" style="display:none;" />
+              </label>
+            </div>
+          </div>
           <div class="admin-catalog-list" id="adminCatalogList"></div>
         </div>
 
@@ -588,7 +611,7 @@ export class AdminController {
 
     // Submit New Resource
     const newForm = container.querySelector('#newResourceForm');
-    newForm.addEventListener('submit', (e) => {
+    newForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       sounds.win();
 
@@ -622,10 +645,15 @@ export class AdminController {
         ]
       };
 
-      resourceStore.addResource(newResource);
+      const uploadResult = await resourceStore.addResource(newResource);
       this.onResourceAdded(newResource);
 
-      alert(`🎉 Woohoo! "${newResource.title}" has been published to the TeacherMom website!`);
+      if (uploadResult && uploadResult.isCloud) {
+        sounds.win();
+        alert(`🎉 Woohoo! "${newResource.title}" has been saved directly to Supabase!\n\nIt is now immediately live and visible to every visitor online.`);
+      } else {
+        alert(`🎉 "${newResource.title}" saved!\n\n💡 Notice: Supabase is currently offline or not connected in Vercel. Add SUPABASE_URL and SUPABASE_ANON_KEY to your Vercel Project Settings to make uploads immediately visible to everyone.`);
+      }
       this.renderDashboard(container);
     });
 
@@ -654,6 +682,79 @@ export class AdminController {
 
         alert(`✅ Review from "${author}" added! You can now feature it on the website anytime.`);
         this.renderDashboard(container);
+      });
+    }
+
+    // Catalog Live Site Sync Tools
+    const pushCloudBtn = container.querySelector('#pushToCloudBtn');
+    if (pushCloudBtn) {
+      pushCloudBtn.addEventListener('click', async () => {
+        sounds.sparkle();
+        pushCloudBtn.disabled = true;
+        pushCloudBtn.textContent = '⏳ Pushing to Supabase...';
+        const result = await resourceStore.pushAllToCloud();
+        pushCloudBtn.disabled = false;
+        pushCloudBtn.textContent = '⚡ Push Catalog to Supabase';
+        if (result.success) {
+          sounds.win();
+          alert(`🎉 Woohoo! Successfully synchronized ${result.count} resources to Supabase!\n\nAll visitors on Vercel now see your live catalog.`);
+          this.renderDashboard(container);
+        } else {
+          sounds.pop(300);
+          alert(`⚠️ Supabase Setup Needed:\n\n${result.error || 'Supabase credentials not detected.'}\n\nTo connect Supabase (100% Free):\n1. In your Supabase Dashboard, create a table named "resources"\n2. Copy your Project URL & Anon Key\n3. In Vercel -> Settings -> Environment Variables, add:\n   - SUPABASE_URL\n   - SUPABASE_ANON_KEY\n4. Redeploy in Vercel.`);
+        }
+      });
+    }
+
+    const copyCodeBtn = container.querySelector('#copyCatalogCodeBtn');
+    if (copyCodeBtn) {
+      copyCodeBtn.addEventListener('click', () => {
+        sounds.sparkle();
+        const catalogJs = `export const INITIAL_RESOURCES = ${JSON.stringify(resources, null, 2)};`;
+        navigator.clipboard.writeText(catalogJs).then(() => {
+          alert('📋 Catalog code copied to clipboard!\n\nPaste this into src/resourceStore.js (replacing INITIAL_RESOURCES) and git push so all visitors see your uploads.');
+        }).catch(() => {
+          prompt('Copy this code into src/resourceStore.js:', catalogJs);
+        });
+      });
+    }
+
+    const dlJsonBtn = container.querySelector('#downloadCatalogJsonBtn');
+    if (dlJsonBtn) {
+      dlJsonBtn.addEventListener('click', () => {
+        sounds.pop(500);
+        const blob = new Blob([JSON.stringify(resources, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `teachermom-catalog-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    const importInput = container.querySelector('#importCatalogInput');
+    if (importInput) {
+      importInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (Array.isArray(data)) {
+              resourceStore.saveResources(data);
+              sounds.win();
+              alert(`✅ Successfully imported ${data.length} resources!`);
+              this.renderDashboard(container);
+            } else {
+              alert('Invalid catalog JSON format.');
+            }
+          } catch (err) {
+            alert('Failed to parse JSON file.');
+          }
+        };
+        reader.readAsText(file);
       });
     }
 
