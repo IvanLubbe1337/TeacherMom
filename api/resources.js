@@ -12,34 +12,41 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 2. Discover Database Credentials (Vercel Supabase Integration automatically injects these)
-  let derivedUrl = '';
-  if (process.env.POSTGRES_URL) {
-    const match = process.env.POSTGRES_URL.match(/postgres\.([a-zA-Z0-9_-]+):/) || process.env.POSTGRES_URL.match(/db\.([a-zA-Z0-9_-]+)\.supabase\.co/);
-    if (match && match[1]) {
-      derivedUrl = `https://${match[1]}.supabase.co`;
-    }
-  }
-
-  const supabaseUrl = (
+  // 2. Discover Database Credentials (Supports Vercel prefixes like STORAGE_SUPABASE_*)
+  let supabaseUrl = (
+    process.env.STORAGE_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_STORAGE_SUPABASE_URL ||
     process.env.SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.VITE_SUPABASE_URL ||
     process.env.REACT_APP_SUPABASE_URL ||
-    derivedUrl ||
-    (process.env.POSTGRES_HOST && process.env.POSTGRES_HOST.includes('supabase.co')
-      ? `https://${process.env.POSTGRES_HOST.split('.')[1]}.supabase.co`
-      : '') ||
     ''
   ).replace(/\/$/, '');
 
-  const supabaseKey =
+  let supabaseKey =
+    process.env.STORAGE_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.STORAGE_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_STORAGE_SUPABASE_ANON_KEY ||
+    process.env.STORAGE_SUPABASE_SECRET_KEY ||
+    process.env.STORAGE_SUPABASE_PUBLISHABLE_KEY ||
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.VITE_SUPABASE_ANON_KEY ||
     process.env.REACT_APP_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_KEY;
+
+  // Dynamic fallback: scan for any custom prefix like [NAME]_SUPABASE_URL
+  if (!supabaseUrl || !supabaseKey) {
+    for (const [key, val] of Object.entries(process.env)) {
+      if (!supabaseUrl && key.includes('SUPABASE') && key.includes('URL') && typeof val === 'string' && val.startsWith('http')) {
+        supabaseUrl = val.replace(/\/$/, '');
+      }
+      if (!supabaseKey && key.includes('SUPABASE') && (key.includes('KEY') || key.includes('SECRET')) && typeof val === 'string' && val.length > 20) {
+        supabaseKey = val;
+      }
+    }
+  }
 
   const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
