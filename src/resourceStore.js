@@ -557,14 +557,15 @@ export class ResourceStore {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'set_all', resources })
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.connected) {
-          this.cloudStatus = 'connected';
-          return { success: true, count: resources.length };
-        }
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.success) {
+        this.cloudStatus = 'connected';
+        return { success: true, count: resources.length };
       }
-      return { success: false, error: 'Cloud database not configured in Vercel.' };
+
+      const errMsg = data?.error || data?.message || (res.status === 404 ? 'API route /api/resources not reachable (ensure you are testing on your deployed Vercel domain, not localhost)' : `Server responded with HTTP ${res.status}`);
+      return { success: false, error: errMsg, details: data };
     } catch (err) {
       return { success: false, error: err.message };
     }

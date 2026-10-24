@@ -700,8 +700,10 @@ export class AdminController {
           alert(`🎉 Woohoo! Successfully synchronized ${result.count} resources to Supabase!\n\nAll visitors on Vercel now see your live catalog.`);
           this.renderDashboard(container);
         } else {
-          sounds.pop(300);
-          alert(`⚠️ Supabase Setup Needed:\n\n${result.error || 'Supabase credentials not detected.'}\n\nTo connect Supabase (100% Free):\n1. In your Supabase Dashboard, create a table named "resources"\n2. Copy your Project URL & Anon Key\n3. In Vercel -> Settings -> Environment Variables, add:\n   - SUPABASE_URL\n   - SUPABASE_ANON_KEY\n4. Redeploy in Vercel.`);
+          const detectedInfo = result.details?.detectedKeys && result.details.detectedKeys.length > 0
+            ? `\n\n(Vercel detected variables: ${result.details.detectedKeys.join(', ')})`
+            : '';
+          alert(`⚠️ Supabase Cloud Sync Notice:\n\n${result.error}${detectedInfo}\n\n💡 If the "resources" table doesn't exist yet, run the SQL create table script in your Supabase SQL Editor.`);
         }
       });
     }

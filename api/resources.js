@@ -13,11 +13,20 @@ export default async function handler(req, res) {
   }
 
   // 2. Discover Database Credentials (Vercel Supabase Integration automatically injects these)
+  let derivedUrl = '';
+  if (process.env.POSTGRES_URL) {
+    const match = process.env.POSTGRES_URL.match(/postgres\.([a-zA-Z0-9_-]+):/) || process.env.POSTGRES_URL.match(/db\.([a-zA-Z0-9_-]+)\.supabase\.co/);
+    if (match && match[1]) {
+      derivedUrl = `https://${match[1]}.supabase.co`;
+    }
+  }
+
   const supabaseUrl = (
     process.env.SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.VITE_SUPABASE_URL ||
     process.env.REACT_APP_SUPABASE_URL ||
+    derivedUrl ||
     (process.env.POSTGRES_HOST && process.env.POSTGRES_HOST.includes('supabase.co')
       ? `https://${process.env.POSTGRES_HOST.split('.')[1]}.supabase.co`
       : '') ||
@@ -29,7 +38,8 @@ export default async function handler(req, res) {
     process.env.SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.REACT_APP_SUPABASE_ANON_KEY;
+    process.env.REACT_APP_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_KEY;
 
   const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -37,18 +47,24 @@ export default async function handler(req, res) {
   const useSupabase = Boolean(supabaseUrl && supabaseKey);
   const useKV = !useSupabase && Boolean(kvUrl && kvToken);
 
+  const detectedKeys = Object.keys(process.env).filter(k => 
+    k.includes('SUPABASE') || k.includes('POSTGRES') || k.includes('KV')
+  );
+
   if (!useSupabase && !useKV) {
     if (req.method === 'GET') {
       return res.status(200).json({
         connected: false,
         provider: 'none',
         resources: [],
-        message: 'Supabase credentials not found in Vercel environment.'
+        message: 'Supabase credentials not found in Vercel environment.',
+        detectedKeys
       });
     }
     return res.status(503).json({
       connected: false,
-      error: 'Supabase credentials not detected. Ensure your Vercel project is linked to your Supabase integration.'
+      error: 'Supabase credentials not detected in Vercel. Ensure your Vercel project has SUPABASE_URL and SUPABASE_ANON_KEY set.',
+      detectedKeys
     });
   }
 
@@ -76,6 +92,12 @@ export default async function handler(req, res) {
 
       if (!response.ok) {
         const errText = await response.text();
+        // Check if table missing
+        if (response.status === 404 || errText.includes('42P01') || errText.includes('does not exist')) {
+          if (!errText.includes('data')) {
+            throw new Error('Table "resources" does not exist in your Supabase database yet. Please run the SQL table creation script in Supabase SQL editor.');
+          }
+        }
         // If table doesn't have a "data" column, retry with flat object
         if (errText.includes('data') && errText.includes('does not exist')) {
           response = await fetch(`${supabaseUrl}/rest/v1/resources`, {
